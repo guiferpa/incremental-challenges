@@ -4,6 +4,8 @@ A collection of coding challenges for study, ordered from easiest to hardest.
 
 Each challenge describes a problem, not an implementation. Solve it in any language you like.
 
+Every level comes with test cases in [`testdata/`](testdata/). Run them against your solution, in any language, with `scripts/run-tests.sh`. See [`testdata/README.md`](testdata/README.md).
+
 ## Challenges
 
 | # | Challenge | Difficulty | Time | Topics |

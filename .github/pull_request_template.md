@@ -8,4 +8,5 @@
 
 - [ ] My changes are only inside `solutions/<my-github-username>/<challenge-name>/`
 - [ ] My folder has a `README.md` explaining how to run the solution and my approach
-- [ ] My tests reproduce the examples of each level I solved
+- [ ] My folder has a `manifest.json`
+- [ ] `scripts/run-tests.sh` passes for each level I solved
