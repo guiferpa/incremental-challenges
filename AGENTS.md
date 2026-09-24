@@ -27,7 +27,7 @@ Within the same difficulty, order challenges by how much they combine: fewer con
 - Challenges live in `challenges/NNN-challenge-name.md`. `NNN` is a three-digit prefix that orders challenges from easiest to hardest.
 - When a new challenge fits between existing ones, renumber the challenges after it so the order stays correct.
 - `README.md` holds the ordered index of challenges. Update it whenever a challenge is added, renamed or renumbered.
-- Solutions live in `solutions/<github-username>/<challenge-name>/`.
+- Solutions live in `solutions/<github-username>/<challenge-name>/`. `CONTRIBUTING.md` holds the submission rules. When a challenge is renumbered or renamed, update `CONTRIBUTING.md` examples if they mention it, and tell the user which existing solution folders now have an outdated name.
 
 ## Challenge template
 

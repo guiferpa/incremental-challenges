@@ -28,4 +28,4 @@ solutions/<github-username>/<challenge-name>/
 
 For example: `solutions/guiferpa/001-log-parser/`.
 
-Add a short `README.md` inside your folder with how to run your solution and any notes on your approach.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) for the full steps, rules and the solution README template.
