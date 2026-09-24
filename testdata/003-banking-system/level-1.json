@@ -1,0 +1,40 @@
+{
+  "challenge": "003-banking-system",
+  "level": 1,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "create_account", "args": {"timestamp": 1, "account_id": "A"}, "expected": true},
+        {"op": "create_account", "args": {"timestamp": 2, "account_id": "B"}, "expected": true},
+        {"op": "create_account", "args": {"timestamp": 3, "account_id": "A"}, "expected": false},
+        {"op": "deposit", "args": {"timestamp": 4, "account_id": "A", "amount": 1000}, "expected": 1000},
+        {"op": "deposit", "args": {"timestamp": 5, "account_id": "C", "amount": 10}, "expected": null},
+        {"op": "transfer", "args": {"timestamp": 6, "source_id": "A", "target_id": "B", "amount": 300}, "expected": 700},
+        {"op": "transfer", "args": {"timestamp": 7, "source_id": "B", "target_id": "A", "amount": 500}, "expected": null},
+        {"op": "transfer", "args": {"timestamp": 8, "source_id": "A", "target_id": "A", "amount": 10}, "expected": null}
+      ]
+    },
+    {
+      "name": "transfer the whole balance",
+      "operations": [
+        {"op": "create_account", "args": {"timestamp": 1, "account_id": "x"}, "expected": true},
+        {"op": "create_account", "args": {"timestamp": 2, "account_id": "y"}, "expected": true},
+        {"op": "deposit", "args": {"timestamp": 3, "account_id": "x", "amount": 50}, "expected": 50},
+        {"op": "transfer", "args": {"timestamp": 4, "source_id": "x", "target_id": "y", "amount": 50}, "expected": 0},
+        {"op": "transfer", "args": {"timestamp": 5, "source_id": "x", "target_id": "y", "amount": 1}, "expected": null},
+        {"op": "deposit", "args": {"timestamp": 6, "account_id": "y", "amount": 10}, "expected": 60}
+      ]
+    },
+    {
+      "name": "unknown accounts",
+      "operations": [
+        {"op": "create_account", "args": {"timestamp": 1, "account_id": "x"}, "expected": true},
+        {"op": "deposit", "args": {"timestamp": 2, "account_id": "x", "amount": 100}, "expected": 100},
+        {"op": "transfer", "args": {"timestamp": 3, "source_id": "x", "target_id": "ghost", "amount": 10}, "expected": null},
+        {"op": "transfer", "args": {"timestamp": 4, "source_id": "ghost", "target_id": "x", "amount": 10}, "expected": null},
+        {"op": "deposit", "args": {"timestamp": 5, "account_id": "x", "amount": 1}, "expected": 101}
+      ]
+    }
+  ]
+}

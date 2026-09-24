@@ -123,6 +123,23 @@ Rules:
 
 ---
 
+## Test data
+
+Test cases for each level are in [`testdata/007-artifact-registry/`](../testdata/007-artifact-registry/). See [`testdata/README.md`](../testdata/README.md) for the file format.
+
+| Level | Operation | Arguments | Result |
+| --- | --- | --- | --- |
+| 1 | `publish` | `timestamp`, `package`, `version`, `size_kb` | `true` or `false` |
+| 1 | `fetch` | `timestamp`, `package`, `version` | size, or `null` |
+| 1 | `list_versions` | `timestamp`, `package` | list of versions |
+| 2 | `add_dependency` | `timestamp`, `package`, `version`, `dep_package`, `dep_version` | `true` or `false` |
+| 2 | `resolve_closure` | `timestamp`, `package`, `version` | list of `name@version`, or `null` |
+| 2 | `total_size` | `timestamp`, `package`, `version` | size, or `null` |
+| 3 | `publish_with_ttl` | `timestamp`, `package`, `version`, `size_kb`, `ttl_ms` | `true` or `false` |
+| 3 | `cleanup` | `timestamp` | number of artifacts removed |
+| 4 | `snapshot` | `timestamp` | snapshot ID |
+| 4 | `restore` | `timestamp`, `snapshot_id` | `true` or `false` |
+
 ## What is evaluated
 
 - **Correctness:** every level works, and earlier levels keep working after later ones are added.

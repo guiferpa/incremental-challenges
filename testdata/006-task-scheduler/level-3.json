@@ -1,0 +1,42 @@
+{
+  "challenge": "006-task-scheduler",
+  "level": 3,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "simulate", "args": {"workers": 2, "tasks": [{"task_id": "a", "priority": 1, "duration": 3, "depends_on": []}, {"task_id": "b", "priority": 5, "duration": 2, "depends_on": []}, {"task_id": "c", "priority": 4, "duration": 4, "depends_on": ["b"]}, {"task_id": "d", "priority": 2, "duration": 1, "depends_on": ["a", "b"]}, {"task_id": "e", "priority": 3, "duration": 2, "depends_on": []}]}, "expected": {"total_time": 6, "start_times": {"a": 2, "b": 0, "c": 2, "d": 5, "e": 0}}}
+      ]
+    },
+    {
+      "name": "one worker runs tasks one by one",
+      "operations": [
+        {"op": "simulate", "args": {"workers": 1, "tasks": [{"task_id": "a", "priority": 1, "duration": 3, "depends_on": []}, {"task_id": "b", "priority": 5, "duration": 2, "depends_on": []}, {"task_id": "c", "priority": 4, "duration": 4, "depends_on": ["b"]}, {"task_id": "d", "priority": 2, "duration": 1, "depends_on": ["a", "b"]}, {"task_id": "e", "priority": 3, "duration": 2, "depends_on": []}]}, "expected": {"total_time": 12, "start_times": {"a": 8, "b": 0, "c": 2, "d": 11, "e": 6}}}
+      ]
+    },
+    {
+      "name": "more workers than tasks",
+      "operations": [
+        {"op": "simulate", "args": {"workers": 10, "tasks": [{"task_id": "a", "priority": 1, "duration": 3, "depends_on": []}, {"task_id": "b", "priority": 5, "duration": 2, "depends_on": []}, {"task_id": "c", "priority": 4, "duration": 4, "depends_on": ["b"]}, {"task_id": "d", "priority": 2, "duration": 1, "depends_on": ["a", "b"]}, {"task_id": "e", "priority": 3, "duration": 2, "depends_on": []}]}, "expected": {"total_time": 6, "start_times": {"a": 0, "b": 0, "c": 2, "d": 3, "e": 0}}}
+      ]
+    },
+    {
+      "name": "chain",
+      "operations": [
+        {"op": "simulate", "args": {"workers": 3, "tasks": [{"task_id": "x", "priority": 1, "duration": 1, "depends_on": []}, {"task_id": "y", "priority": 1, "duration": 2, "depends_on": ["x"]}, {"task_id": "z", "priority": 1, "duration": 3, "depends_on": ["y"]}]}, "expected": {"total_time": 6, "start_times": {"x": 0, "y": 1, "z": 3}}}
+      ]
+    },
+    {
+      "name": "ties use list order",
+      "operations": [
+        {"op": "simulate", "args": {"workers": 2, "tasks": [{"task_id": "p", "priority": 1, "duration": 1, "depends_on": []}, {"task_id": "q", "priority": 1, "duration": 1, "depends_on": []}, {"task_id": "r", "priority": 2, "duration": 2, "depends_on": []}]}, "expected": {"total_time": 2, "start_times": {"p": 0, "q": 1, "r": 0}}}
+      ]
+    },
+    {
+      "name": "no tasks",
+      "operations": [
+        {"op": "simulate", "args": {"workers": 2, "tasks": []}, "expected": {"total_time": 0, "start_times": {}}}
+      ]
+    }
+  ]
+}

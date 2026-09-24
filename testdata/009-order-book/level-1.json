@@ -1,0 +1,36 @@
+{
+  "challenge": "009-order-book",
+  "level": 1,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "place_limit_order", "args": {"order_id": "1", "side": "BUY", "price": 100, "quantity": 10}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "2", "side": "BUY", "price": 101, "quantity": 5}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "3", "side": "BUY", "price": 101, "quantity": 7}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "4", "side": "SELL", "price": 105, "quantity": 3}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "5", "side": "SELL", "price": 103, "quantity": 4}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "1", "side": "SELL", "price": 110, "quantity": 2}, "expected": null},
+        {"op": "best_bid", "args": {}, "expected": {"price": 101, "quantity": 12}},
+        {"op": "best_ask", "args": {}, "expected": {"price": 103, "quantity": 4}}
+      ]
+    },
+    {
+      "name": "empty book",
+      "operations": [
+        {"op": "best_bid", "args": {}, "expected": null},
+        {"op": "best_ask", "args": {}, "expected": null}
+      ]
+    },
+    {
+      "name": "one side only",
+      "operations": [
+        {"op": "place_limit_order", "args": {"order_id": "s", "side": "SELL", "price": 50, "quantity": 1}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "t", "side": "SELL", "price": 50, "quantity": 2}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "u", "side": "SELL", "price": 60, "quantity": 9}, "expected": []},
+        {"op": "best_bid", "args": {}, "expected": null},
+        {"op": "best_ask", "args": {}, "expected": {"price": 50, "quantity": 3}}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "challenge": "005-lru-cache",
+  "level": 2,
+  "cases": [
+    {
+      "name": "spec example",
+      "setup": {"capacity": 2},
+      "operations": [
+        {"op": "put", "args": {"timestamp": 0, "key": "a", "value": 1, "ttl_ms": 100}},
+        {"op": "put", "args": {"timestamp": 10, "key": "b", "value": 2}},
+        {"op": "get", "args": {"timestamp": 50, "key": "a"}, "expected": 1},
+        {"op": "put", "args": {"timestamp": 120, "key": "c", "value": 3}},
+        {"op": "get", "args": {"timestamp": 130, "key": "b"}, "expected": 2},
+        {"op": "get", "args": {"timestamp": 130, "key": "a"}, "expected": null}
+      ]
+    },
+    {
+      "name": "expires exactly at put time plus ttl",
+      "setup": {"capacity": 2},
+      "operations": [
+        {"op": "put", "args": {"timestamp": 0, "key": "a", "value": 1, "ttl_ms": 10}},
+        {"op": "get", "args": {"timestamp": 9, "key": "a"}, "expected": 1},
+        {"op": "get", "args": {"timestamp": 10, "key": "a"}, "expected": null}
+      ]
+    },
+    {
+      "name": "get does not extend the TTL, put resets it",
+      "setup": {"capacity": 2},
+      "operations": [
+        {"op": "put", "args": {"timestamp": 0, "key": "a", "value": 1, "ttl_ms": 10}},
+        {"op": "get", "args": {"timestamp": 5, "key": "a"}, "expected": 1},
+        {"op": "put", "args": {"timestamp": 8, "key": "a", "value": 2, "ttl_ms": 10}},
+        {"op": "get", "args": {"timestamp": 17, "key": "a"}, "expected": 2},
+        {"op": "get", "args": {"timestamp": 18, "key": "a"}, "expected": null},
+        {"op": "put", "args": {"timestamp": 20, "key": "a", "value": 3}},
+        {"op": "get", "args": {"timestamp": 100000, "key": "a"}, "expected": 3}
+      ]
+    },
+    {
+      "name": "LRU eviction still applies when nothing expired",
+      "setup": {"capacity": 2},
+      "operations": [
+        {"op": "put", "args": {"timestamp": 0, "key": "a", "value": 1, "ttl_ms": 1000}},
+        {"op": "put", "args": {"timestamp": 1, "key": "b", "value": 2}},
+        {"op": "put", "args": {"timestamp": 2, "key": "c", "value": 3}},
+        {"op": "get", "args": {"timestamp": 3, "key": "a"}, "expected": null},
+        {"op": "get", "args": {"timestamp": 3, "key": "b"}, "expected": 2},
+        {"op": "get", "args": {"timestamp": 3, "key": "c"}, "expected": 3}
+      ]
+    },
+    {
+      "name": "all expired items are removed before evicting",
+      "setup": {"capacity": 3},
+      "operations": [
+        {"op": "put", "args": {"timestamp": 0, "key": "a", "value": 1, "ttl_ms": 5}},
+        {"op": "put", "args": {"timestamp": 0, "key": "b", "value": 2}},
+        {"op": "put", "args": {"timestamp": 0, "key": "c", "value": 3, "ttl_ms": 5}},
+        {"op": "put", "args": {"timestamp": 10, "key": "d", "value": 4}},
+        {"op": "put", "args": {"timestamp": 10, "key": "e", "value": 5}},
+        {"op": "get", "args": {"timestamp": 10, "key": "b"}, "expected": 2},
+        {"op": "get", "args": {"timestamp": 10, "key": "d"}, "expected": 4},
+        {"op": "get", "args": {"timestamp": 10, "key": "e"}, "expected": 5}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "challenge": "003-banking-system",
+  "level": 3,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "create_account", "args": {"timestamp": 1, "account_id": "A"}, "expected": true},
+        {"op": "create_account", "args": {"timestamp": 2, "account_id": "B"}, "expected": true},
+        {"op": "create_account", "args": {"timestamp": 3, "account_id": "A"}, "expected": false},
+        {"op": "deposit", "args": {"timestamp": 4, "account_id": "A", "amount": 1000}, "expected": 1000},
+        {"op": "deposit", "args": {"timestamp": 5, "account_id": "C", "amount": 10}, "expected": null},
+        {"op": "transfer", "args": {"timestamp": 6, "source_id": "A", "target_id": "B", "amount": 300}, "expected": 700},
+        {"op": "transfer", "args": {"timestamp": 7, "source_id": "B", "target_id": "A", "amount": 500}, "expected": null},
+        {"op": "transfer", "args": {"timestamp": 8, "source_id": "A", "target_id": "A", "amount": 10}, "expected": null},
+        {"op": "create_account", "args": {"timestamp": 9, "account_id": "C"}, "expected": true},
+        {"op": "deposit", "args": {"timestamp": 10, "account_id": "B", "amount": 200}, "expected": 500},
+        {"op": "transfer", "args": {"timestamp": 11, "source_id": "B", "target_id": "C", "amount": 400}, "expected": 100},
+        {"op": "top_spenders", "args": {"timestamp": 12, "n": 3}, "expected": ["B(400)", "A(300)", "C(0)"]},
+        {"op": "top_spenders", "args": {"timestamp": 13, "n": 2}, "expected": ["B(400)", "A(300)"]},
+        {"op": "pay", "args": {"timestamp": 20, "account_id": "A", "amount": 250}, "expected": "payment1"},
+        {"op": "get_payment_status", "args": {"timestamp": 30, "account_id": "A", "payment_id": "payment1"}, "expected": "IN_PROGRESS"},
+        {"op": "get_payment_status", "args": {"timestamp": 40, "account_id": "B", "payment_id": "payment1"}, "expected": null},
+        {"op": "deposit", "args": {"timestamp": 86400020, "account_id": "A", "amount": 100}, "expected": 555},
+        {"op": "get_payment_status", "args": {"timestamp": 86400021, "account_id": "A", "payment_id": "payment1"}, "expected": "CASHBACK_RECEIVED"},
+        {"op": "top_spenders", "args": {"timestamp": 86400022, "n": 3}, "expected": ["A(550)", "B(400)", "C(0)"]}
+      ]
+    },
+    {
+      "name": "failed payments do not get an ID",
+      "operations": [
+        {"op": "create_account", "args": {"timestamp": 1, "account_id": "a"}, "expected": true},
+        {"op": "deposit", "args": {"timestamp": 2, "account_id": "a", "amount": 100}, "expected": 100},
+        {"op": "pay", "args": {"timestamp": 3, "account_id": "a", "amount": 101}, "expected": null},
+        {"op": "pay", "args": {"timestamp": 4, "account_id": "ghost", "amount": 1}, "expected": null},
+        {"op": "pay", "args": {"timestamp": 5, "account_id": "a", "amount": 100}, "expected": "payment1"},
+        {"op": "deposit", "args": {"timestamp": 6, "account_id": "a", "amount": 10}, "expected": 10},
+        {"op": "pay", "args": {"timestamp": 7, "account_id": "a", "amount": 10}, "expected": "payment2"}
+      ]
+    },
+    {
+      "name": "cashback is rounded down and credited on its due time",
+      "operations": [
+        {"op": "create_account", "args": {"timestamp": 1, "account_id": "a"}, "expected": true},
+        {"op": "deposit", "args": {"timestamp": 2, "account_id": "a", "amount": 1000}, "expected": 1000},
+        {"op": "pay", "args": {"timestamp": 10, "account_id": "a", "amount": 49}, "expected": "payment1"},
+        {"op": "pay", "args": {"timestamp": 20, "account_id": "a", "amount": 150}, "expected": "payment2"},
+        {"op": "get_payment_status", "args": {"timestamp": 86400009, "account_id": "a", "payment_id": "payment1"}, "expected": "IN_PROGRESS"},
+        {"op": "get_payment_status", "args": {"timestamp": 86400010, "account_id": "a", "payment_id": "payment1"}, "expected": "CASHBACK_RECEIVED"},
+        {"op": "deposit", "args": {"timestamp": 86400011, "account_id": "a", "amount": 1}, "expected": 802},
+        {"op": "deposit", "args": {"timestamp": 86400020, "account_id": "a", "amount": 1}, "expected": 806},
+        {"op": "get_payment_status", "args": {"timestamp": 86400030, "account_id": "a", "payment_id": "payment3"}, "expected": null}
+      ]
+    },
+    {
+      "name": "cashback can be spent",
+      "operations": [
+        {"op": "create_account", "args": {"timestamp": 1, "account_id": "a"}, "expected": true},
+        {"op": "create_account", "args": {"timestamp": 2, "account_id": "b"}, "expected": true},
+        {"op": "deposit", "args": {"timestamp": 3, "account_id": "a", "amount": 500}, "expected": 500},
+        {"op": "pay", "args": {"timestamp": 4, "account_id": "a", "amount": 500}, "expected": "payment1"},
+        {"op": "transfer", "args": {"timestamp": 5, "source_id": "a", "target_id": "b", "amount": 10}, "expected": null},
+        {"op": "transfer", "args": {"timestamp": 86400004, "source_id": "a", "target_id": "b", "amount": 10}, "expected": 0},
+        {"op": "top_spenders", "args": {"timestamp": 86400005, "n": 2}, "expected": ["a(510)", "b(0)"]}
+      ]
+    }
+  ]
+}

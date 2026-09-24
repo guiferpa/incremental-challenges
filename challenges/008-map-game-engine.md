@@ -117,6 +117,20 @@ Using the tree from Level 1:
 
 ---
 
+## Test data
+
+Test cases for each level are in [`testdata/008-map-game-engine/`](../testdata/008-map-game-engine/). See [`testdata/README.md`](../testdata/README.md) for the file format.
+
+| Level | Operation | Arguments | Result |
+| --- | --- | --- | --- |
+| 1 | `add_zone` | `zone_id`, `parent_id` | `true` or `false` |
+| 1 | `get_path` | `zone_id` | path, or `null` |
+| 1 | `get_descendants` | `zone_id` | list of zone IDs, or `null` |
+| 2 | `place_entity` | `zone_id`, `entity_id`, `weight` | `true` or `false` |
+| 2 | `query_subtree` | `zone_id`, `max_weight` | list of entity IDs, or `null` |
+| 3 | `set_property` | `zone_id`, `key`, `value` | `true` or `false` |
+| 3 | `get_property` | `zone_id`, `key` | value, or `null` |
+
 ## Going further (optional)
 
 - Move a zone, with its whole subtree, under a new parent. Reject moves that would create a cycle.

@@ -1,0 +1,58 @@
+{
+  "challenge": "002-key-value-store",
+  "level": 3,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "set", "args": {"timestamp": 0, "key": "a", "value": "1"}},
+        {"op": "set", "args": {"timestamp": 10, "key": "b", "value": "2", "ttl_ms": 100}},
+        {"op": "get", "args": {"timestamp": 50, "key": "b"}, "expected": "2"},
+        {"op": "set", "args": {"timestamp": 60, "key": "a", "value": "3"}},
+        {"op": "get", "args": {"timestamp": 120, "key": "b"}, "expected": null},
+        {"op": "delete", "args": {"timestamp": 130, "key": "a"}, "expected": true},
+        {"op": "get_at", "args": {"key": "a", "at": 30}, "expected": "1"},
+        {"op": "get_at", "args": {"key": "a", "at": 60}, "expected": "3"},
+        {"op": "get_at", "args": {"key": "a", "at": 130}, "expected": null},
+        {"op": "get_at", "args": {"key": "b", "at": 109}, "expected": "2"},
+        {"op": "get_at", "args": {"key": "b", "at": 110}, "expected": null}
+      ]
+    },
+    {
+      "name": "setting again replaces the TTL",
+      "operations": [
+        {"op": "set", "args": {"timestamp": 0, "key": "k", "value": "v1", "ttl_ms": 10}},
+        {"op": "set", "args": {"timestamp": 5, "key": "k", "value": "v2"}},
+        {"op": "get", "args": {"timestamp": 1000, "key": "k"}, "expected": "v2"},
+        {"op": "set", "args": {"timestamp": 1000, "key": "k", "value": "v3", "ttl_ms": 1}},
+        {"op": "get", "args": {"timestamp": 1001, "key": "k"}, "expected": null},
+        {"op": "get_at", "args": {"key": "k", "at": 4}, "expected": "v1"},
+        {"op": "get_at", "args": {"key": "k", "at": 999}, "expected": "v2"}
+      ]
+    },
+    {
+      "name": "expired keys are ignored",
+      "operations": [
+        {"op": "set", "args": {"timestamp": 0, "key": "a", "value": "x", "ttl_ms": 5}},
+        {"op": "set", "args": {"timestamp": 0, "key": "b", "value": "x"}},
+        {"op": "count", "args": {"timestamp": 4, "value": "x"}, "expected": 2},
+        {"op": "count", "args": {"timestamp": 5, "value": "x"}, "expected": 1},
+        {"op": "delete", "args": {"timestamp": 6, "key": "a"}, "expected": false},
+        {"op": "get", "args": {"timestamp": 6, "key": "b"}, "expected": "x"}
+      ]
+    },
+    {
+      "name": "same timestamp: last operation wins",
+      "operations": [
+        {"op": "set", "args": {"timestamp": 5, "key": "x", "value": "1"}},
+        {"op": "set", "args": {"timestamp": 5, "key": "x", "value": "2"}},
+        {"op": "get_at", "args": {"key": "x", "at": 5}, "expected": "2"},
+        {"op": "get_at", "args": {"key": "x", "at": 4}, "expected": null},
+        {"op": "delete", "args": {"timestamp": 7, "key": "x"}, "expected": true},
+        {"op": "set", "args": {"timestamp": 7, "key": "x", "value": "3"}},
+        {"op": "get_at", "args": {"key": "x", "at": 7}, "expected": "3"},
+        {"op": "get_at", "args": {"key": "never_set", "at": 7}, "expected": null}
+      ]
+    }
+  ]
+}

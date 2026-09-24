@@ -1,0 +1,62 @@
+{
+  "challenge": "006-task-scheduler",
+  "level": 2,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "add_task", "args": {"task_id": "a", "priority": 1}, "expected": true},
+        {"op": "add_task", "args": {"task_id": "b", "priority": 5, "depends_on": ["a"]}, "expected": true},
+        {"op": "add_task", "args": {"task_id": "c", "priority": 3}, "expected": true},
+        {"op": "add_task", "args": {"task_id": "d", "priority": 2, "depends_on": ["x"]}, "expected": false},
+        {"op": "next_task", "args": {}, "expected": "c"},
+        {"op": "next_task", "args": {}, "expected": "a"},
+        {"op": "next_task", "args": {}, "expected": null},
+        {"op": "complete_task", "args": {"task_id": "b"}, "expected": false},
+        {"op": "complete_task", "args": {"task_id": "a"}, "expected": true},
+        {"op": "next_task", "args": {}, "expected": "b"}
+      ]
+    },
+    {
+      "name": "waits for every dependency",
+      "operations": [
+        {"op": "add_task", "args": {"task_id": "a", "priority": 1}, "expected": true},
+        {"op": "add_task", "args": {"task_id": "b", "priority": 1}, "expected": true},
+        {"op": "add_task", "args": {"task_id": "c", "priority": 9, "depends_on": ["a", "b"]}, "expected": true},
+        {"op": "next_task", "args": {}, "expected": "a"},
+        {"op": "complete_task", "args": {"task_id": "a"}, "expected": true},
+        {"op": "next_task", "args": {}, "expected": "b"},
+        {"op": "next_task", "args": {}, "expected": null},
+        {"op": "complete_task", "args": {"task_id": "b"}, "expected": true},
+        {"op": "next_task", "args": {}, "expected": "c"}
+      ]
+    },
+    {
+      "name": "a running dependency is not enough",
+      "operations": [
+        {"op": "add_task", "args": {"task_id": "a", "priority": 1}, "expected": true},
+        {"op": "add_task", "args": {"task_id": "b", "priority": 1, "depends_on": ["a"]}, "expected": true},
+        {"op": "next_task", "args": {}, "expected": "a"},
+        {"op": "next_task", "args": {}, "expected": null}
+      ]
+    },
+    {
+      "name": "complete only running tasks",
+      "operations": [
+        {"op": "add_task", "args": {"task_id": "a", "priority": 1}, "expected": true},
+        {"op": "complete_task", "args": {"task_id": "a"}, "expected": false},
+        {"op": "complete_task", "args": {"task_id": "ghost"}, "expected": false},
+        {"op": "next_task", "args": {}, "expected": "a"},
+        {"op": "complete_task", "args": {"task_id": "a"}, "expected": true},
+        {"op": "complete_task", "args": {"task_id": "a"}, "expected": false}
+      ]
+    },
+    {
+      "name": "empty dependency list",
+      "operations": [
+        {"op": "add_task", "args": {"task_id": "a", "priority": 1, "depends_on": []}, "expected": true},
+        {"op": "next_task", "args": {}, "expected": "a"}
+      ]
+    }
+  ]
+}

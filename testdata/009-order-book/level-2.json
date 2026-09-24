@@ -1,0 +1,59 @@
+{
+  "challenge": "009-order-book",
+  "level": 2,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "place_limit_order", "args": {"order_id": "S1", "side": "SELL", "price": 101, "quantity": 5}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "S2", "side": "SELL", "price": 100, "quantity": 3}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "S3", "side": "SELL", "price": 101, "quantity": 4}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "B1", "side": "BUY", "price": 99, "quantity": 2}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "B2", "side": "BUY", "price": 101, "quantity": 10}, "expected": [{"buy_order_id": "B2", "sell_order_id": "S2", "price": 100, "quantity": 3}, {"buy_order_id": "B2", "sell_order_id": "S1", "price": 101, "quantity": 5}, {"buy_order_id": "B2", "sell_order_id": "S3", "price": 101, "quantity": 2}]},
+        {"op": "best_ask", "args": {}, "expected": {"price": 101, "quantity": 2}},
+        {"op": "best_bid", "args": {}, "expected": {"price": 99, "quantity": 2}},
+        {"op": "place_limit_order", "args": {"order_id": "S4", "side": "SELL", "price": 98, "quantity": 5}, "expected": [{"buy_order_id": "B1", "sell_order_id": "S4", "price": 99, "quantity": 2}]},
+        {"op": "best_ask", "args": {}, "expected": {"price": 98, "quantity": 3}}
+      ]
+    },
+    {
+      "name": "a sell matches the highest bid first",
+      "operations": [
+        {"op": "place_limit_order", "args": {"order_id": "b1", "side": "BUY", "price": 10, "quantity": 5}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "b2", "side": "BUY", "price": 12, "quantity": 5}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "b3", "side": "BUY", "price": 11, "quantity": 5}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "s1", "side": "SELL", "price": 11, "quantity": 8}, "expected": [{"buy_order_id": "b2", "sell_order_id": "s1", "price": 12, "quantity": 5}, {"buy_order_id": "b3", "sell_order_id": "s1", "price": 11, "quantity": 3}]},
+        {"op": "best_bid", "args": {}, "expected": {"price": 11, "quantity": 2}},
+        {"op": "best_ask", "args": {}, "expected": null}
+      ]
+    },
+    {
+      "name": "exact fill removes both orders",
+      "operations": [
+        {"op": "place_limit_order", "args": {"order_id": "s", "side": "SELL", "price": 20, "quantity": 4}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "b", "side": "BUY", "price": 20, "quantity": 4}, "expected": [{"buy_order_id": "b", "sell_order_id": "s", "price": 20, "quantity": 4}]},
+        {"op": "best_bid", "args": {}, "expected": null},
+        {"op": "best_ask", "args": {}, "expected": null}
+      ]
+    },
+    {
+      "name": "partially filled resting order keeps its place",
+      "operations": [
+        {"op": "place_limit_order", "args": {"order_id": "s1", "side": "SELL", "price": 20, "quantity": 5}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "s2", "side": "SELL", "price": 20, "quantity": 5}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "b1", "side": "BUY", "price": 20, "quantity": 2}, "expected": [{"buy_order_id": "b1", "sell_order_id": "s1", "price": 20, "quantity": 2}]},
+        {"op": "place_limit_order", "args": {"order_id": "b2", "side": "BUY", "price": 25, "quantity": 4}, "expected": [{"buy_order_id": "b2", "sell_order_id": "s1", "price": 20, "quantity": 3}, {"buy_order_id": "b2", "sell_order_id": "s2", "price": 20, "quantity": 1}]},
+        {"op": "best_ask", "args": {}, "expected": {"price": 20, "quantity": 4}}
+      ]
+    },
+    {
+      "name": "IDs of filled orders cannot be reused",
+      "operations": [
+        {"op": "place_limit_order", "args": {"order_id": "s", "side": "SELL", "price": 20, "quantity": 1}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "b", "side": "BUY", "price": 20, "quantity": 1}, "expected": [{"buy_order_id": "b", "sell_order_id": "s", "price": 20, "quantity": 1}]},
+        {"op": "place_limit_order", "args": {"order_id": "s", "side": "SELL", "price": 20, "quantity": 1}, "expected": null},
+        {"op": "place_limit_order", "args": {"order_id": "b", "side": "BUY", "price": 20, "quantity": 1}, "expected": null}
+      ]
+    }
+  ]
+}

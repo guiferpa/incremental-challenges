@@ -104,6 +104,23 @@ Every operation now also receives a `timestamp` in milliseconds. Timestamps neve
 
 ---
 
+## Test data
+
+Test cases for each level are in [`testdata/002-key-value-store/`](../testdata/002-key-value-store/). See [`testdata/README.md`](../testdata/README.md) for the file format.
+
+| Level | Operation | Arguments | Result |
+| --- | --- | --- | --- |
+| 1 | `set` | `key`, `value` | — |
+| 1 | `get` | `key` | value, or `null` |
+| 1 | `delete` | `key` | `true` or `false` |
+| 1 | `count` | `value` | number of keys |
+| 2 | `begin` | — | — |
+| 2 | `rollback`, `commit` | — | —, or `{"error": "no_transaction"}` |
+| 3 | `set` | `timestamp`, `key`, `value`, optional `ttl_ms` | — |
+| 3 | `get`, `delete` | `timestamp`, `key` | same as Level 1 |
+| 3 | `count` | `timestamp`, `value` | same as Level 1 |
+| 3 | `get_at` | `key`, `at` | value, or `null` |
+
 ## Going further (optional)
 
 - Combine Level 3 with transactions: which timestamp should a committed change carry in the history?

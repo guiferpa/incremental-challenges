@@ -1,0 +1,49 @@
+{
+  "challenge": "002-key-value-store",
+  "level": 1,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "set", "args": {"key": "a", "value": "10"}},
+        {"op": "set", "args": {"key": "b", "value": "10"}},
+        {"op": "set", "args": {"key": "c", "value": "20"}},
+        {"op": "get", "args": {"key": "a"}, "expected": "10"},
+        {"op": "count", "args": {"value": "10"}, "expected": 2},
+        {"op": "delete", "args": {"key": "b"}, "expected": true},
+        {"op": "delete", "args": {"key": "b"}, "expected": false},
+        {"op": "get", "args": {"key": "b"}, "expected": null},
+        {"op": "count", "args": {"value": "10"}, "expected": 1}
+      ]
+    },
+    {
+      "name": "overwrite changes count",
+      "operations": [
+        {"op": "set", "args": {"key": "x", "value": "1"}},
+        {"op": "set", "args": {"key": "y", "value": "1"}},
+        {"op": "set", "args": {"key": "x", "value": "2"}},
+        {"op": "get", "args": {"key": "x"}, "expected": "2"},
+        {"op": "count", "args": {"value": "1"}, "expected": 1},
+        {"op": "count", "args": {"value": "2"}, "expected": 1},
+        {"op": "count", "args": {"value": "3"}, "expected": 0}
+      ]
+    },
+    {
+      "name": "missing keys",
+      "operations": [
+        {"op": "get", "args": {"key": "nope"}, "expected": null},
+        {"op": "delete", "args": {"key": "nope"}, "expected": false},
+        {"op": "count", "args": {"value": "anything"}, "expected": 0}
+      ]
+    },
+    {
+      "name": "delete then set again",
+      "operations": [
+        {"op": "set", "args": {"key": "k", "value": "v"}},
+        {"op": "delete", "args": {"key": "k"}, "expected": true},
+        {"op": "set", "args": {"key": "k", "value": "w"}},
+        {"op": "get", "args": {"key": "k"}, "expected": "w"}
+      ]
+    }
+  ]
+}

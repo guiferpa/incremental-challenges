@@ -1,0 +1,81 @@
+{
+  "challenge": "008-map-game-engine",
+  "level": 2,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "add_zone", "args": {"zone_id": "north_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "south_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "forest", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_1", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_2", "parent_id": "dungeon_1"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "cave", "parent_id": "forest"}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "north_realm", "entity_id": "merchant", "weight": 10}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "forest", "entity_id": "wolf", "weight": 30}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "cave", "entity_id": "bat", "weight": 5}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "dungeon_1", "entity_id": "skeleton", "weight": 20}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "dungeon_2", "entity_id": "dragon", "weight": 100}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "forest", "entity_id": "bat", "weight": 1}, "expected": false},
+        {"op": "query_subtree", "args": {"zone_id": "north_realm", "max_weight": 50}, "expected": ["bat", "merchant", "skeleton"]},
+        {"op": "query_subtree", "args": {"zone_id": "dungeon_1", "max_weight": 50}, "expected": ["skeleton"]},
+        {"op": "query_subtree", "args": {"zone_id": "forest", "max_weight": 4}, "expected": []}
+      ]
+    },
+    {
+      "name": "invalid placements",
+      "operations": [
+        {"op": "add_zone", "args": {"zone_id": "north_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "south_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "forest", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_1", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_2", "parent_id": "dungeon_1"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "cave", "parent_id": "forest"}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "castle", "entity_id": "ghost", "weight": 1}, "expected": false},
+        {"op": "place_entity", "args": {"zone_id": "forest", "entity_id": "ghost", "weight": 0}, "expected": false},
+        {"op": "place_entity", "args": {"zone_id": "forest", "entity_id": "ghost", "weight": -3}, "expected": false},
+        {"op": "place_entity", "args": {"zone_id": "forest", "entity_id": "ghost", "weight": 1}, "expected": true},
+        {"op": "query_subtree", "args": {"zone_id": "castle", "max_weight": 10}, "expected": null}
+      ]
+    },
+    {
+      "name": "exact fit and everything fits",
+      "operations": [
+        {"op": "add_zone", "args": {"zone_id": "north_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "south_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "forest", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_1", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_2", "parent_id": "dungeon_1"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "cave", "parent_id": "forest"}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "north_realm", "entity_id": "merchant", "weight": 10}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "forest", "entity_id": "wolf", "weight": 30}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "cave", "entity_id": "bat", "weight": 5}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "dungeon_1", "entity_id": "skeleton", "weight": 20}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "dungeon_2", "entity_id": "dragon", "weight": 100}, "expected": true},
+        {"op": "query_subtree", "args": {"zone_id": "north_realm", "max_weight": 65}, "expected": ["bat", "merchant", "skeleton", "wolf"]},
+        {"op": "query_subtree", "args": {"zone_id": "north_realm", "max_weight": 1000}, "expected": ["bat", "dragon", "merchant", "skeleton", "wolf"]},
+        {"op": "query_subtree", "args": {"zone_id": "south_realm", "max_weight": 1000}, "expected": []}
+      ]
+    },
+    {
+      "name": "weight ties are broken by entity_id",
+      "operations": [
+        {"op": "add_zone", "args": {"zone_id": "room", "parent_id": ""}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "room", "entity_id": "c", "weight": 5}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "room", "entity_id": "a", "weight": 5}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "room", "entity_id": "b", "weight": 5}, "expected": true},
+        {"op": "query_subtree", "args": {"zone_id": "room", "max_weight": 12}, "expected": ["a", "b"]}
+      ]
+    },
+    {
+      "name": "stops at the first entity that does not fit",
+      "operations": [
+        {"op": "add_zone", "args": {"zone_id": "room", "parent_id": ""}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "room", "entity_id": "light", "weight": 3}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "room", "entity_id": "heavy", "weight": 8}, "expected": true},
+        {"op": "place_entity", "args": {"zone_id": "room", "entity_id": "huge", "weight": 9}, "expected": true},
+        {"op": "query_subtree", "args": {"zone_id": "room", "max_weight": 10}, "expected": ["light"]}
+      ]
+    }
+  ]
+}

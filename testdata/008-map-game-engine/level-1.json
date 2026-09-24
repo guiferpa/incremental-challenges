@@ -1,0 +1,63 @@
+{
+  "challenge": "008-map-game-engine",
+  "level": 1,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "add_zone", "args": {"zone_id": "north_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "south_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "forest", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_1", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_2", "parent_id": "dungeon_1"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "cave", "parent_id": "forest"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "forest", "parent_id": "south_realm"}, "expected": false},
+        {"op": "add_zone", "args": {"zone_id": "tower", "parent_id": "castle"}, "expected": false},
+        {"op": "get_path", "args": {"zone_id": "dungeon_2"}, "expected": "north_realm/dungeon_1/dungeon_2"},
+        {"op": "get_descendants", "args": {"zone_id": "north_realm"}, "expected": ["forest", "cave", "dungeon_1", "dungeon_2"]},
+        {"op": "get_descendants", "args": {"zone_id": "cave"}, "expected": []}
+      ]
+    },
+    {
+      "name": "top-level zones and unknown zones",
+      "operations": [
+        {"op": "add_zone", "args": {"zone_id": "north_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "south_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "forest", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_1", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_2", "parent_id": "dungeon_1"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "cave", "parent_id": "forest"}, "expected": true},
+        {"op": "get_path", "args": {"zone_id": "south_realm"}, "expected": "south_realm"},
+        {"op": "get_path", "args": {"zone_id": "castle"}, "expected": null},
+        {"op": "get_descendants", "args": {"zone_id": "castle"}, "expected": null},
+        {"op": "add_zone", "args": {"zone_id": "", "parent_id": "north_realm"}, "expected": false},
+        {"op": "add_zone", "args": {"zone_id": "north_realm", "parent_id": ""}, "expected": false}
+      ]
+    },
+    {
+      "name": "children keep insertion order",
+      "operations": [
+        {"op": "add_zone", "args": {"zone_id": "root", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "z", "parent_id": "root"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "a", "parent_id": "root"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "m", "parent_id": "root"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "a1", "parent_id": "a"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "z1", "parent_id": "z"}, "expected": true},
+        {"op": "get_descendants", "args": {"zone_id": "root"}, "expected": ["z", "z1", "a", "a1", "m"]},
+        {"op": "get_path", "args": {"zone_id": "a1"}, "expected": "root/a/a1"}
+      ]
+    },
+    {
+      "name": "deep tree",
+      "operations": [
+        {"op": "add_zone", "args": {"zone_id": "l1", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "l2", "parent_id": "l1"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "l3", "parent_id": "l2"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "l4", "parent_id": "l3"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "l5", "parent_id": "l4"}, "expected": true},
+        {"op": "get_path", "args": {"zone_id": "l5"}, "expected": "l1/l2/l3/l4/l5"},
+        {"op": "get_descendants", "args": {"zone_id": "l3"}, "expected": ["l4", "l5"]}
+      ]
+    }
+  ]
+}

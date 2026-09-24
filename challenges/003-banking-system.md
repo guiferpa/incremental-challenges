@@ -70,7 +70,7 @@ Continuing from Level 1:
 
 ### Tasks
 
-1. **Pay.** Given an `account_id` and an `amount`, withdraw the amount from the account and return a payment ID. Payment IDs are `payment1`, `payment2`, and so on, numbered in the order payments are made across the whole system. The payment fails if the account does not exist or the balance is lower than the amount.
+1. **Pay.** Given an `account_id` and an `amount`, withdraw the amount from the account and return a payment ID. Payment IDs are `payment1`, `payment2`, and so on, numbered in the order payments are made across the whole system. The payment fails if the account does not exist or the balance is lower than the amount. Failed payments do not get an ID.
 
    Each payment earns a cashback of 2% of the amount, rounded down. The cashback is credited to the account exactly 24 hours (`86400000` ms) after the payment. Payments count toward the account's outgoing total from Level 2. Cashback does not reduce it.
 
@@ -95,6 +95,19 @@ Continuing from Level 2. `A` has a balance of `700`.
 | At `86400022`: top `3` spenders | `A(550), B(400), C(0)` |
 
 ---
+
+## Test data
+
+Test cases for each level are in [`testdata/003-banking-system/`](../testdata/003-banking-system/). See [`testdata/README.md`](../testdata/README.md) for the file format.
+
+| Level | Operation | Arguments | Result |
+| --- | --- | --- | --- |
+| 1 | `create_account` | `timestamp`, `account_id` | `true` or `false` |
+| 1 | `deposit` | `timestamp`, `account_id`, `amount` | new balance, or `null` |
+| 1 | `transfer` | `timestamp`, `source_id`, `target_id`, `amount` | source's new balance, or `null` if it fails |
+| 2 | `top_spenders` | `timestamp`, `n` | list like `["B(400)", "A(300)"]` |
+| 3 | `pay` | `timestamp`, `account_id`, `amount` | payment ID, or `null` if it fails |
+| 3 | `get_payment_status` | `timestamp`, `account_id`, `payment_id` | `IN_PROGRESS`, `CASHBACK_RECEIVED` or `null` |
 
 ## Going further (optional)
 

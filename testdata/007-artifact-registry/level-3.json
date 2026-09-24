@@ -1,0 +1,76 @@
+{
+  "challenge": "007-artifact-registry",
+  "level": 3,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "publish_with_ttl", "args": {"timestamp": 100, "package": "core", "version": "1.0.0", "size_kb": 500, "ttl_ms": 50}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 100, "package": "app", "version": "1.0.0", "size_kb": 100}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 110, "package": "app", "version": "1.0.0", "dep_package": "core", "dep_version": "1.0.0"}, "expected": true},
+        {"op": "total_size", "args": {"timestamp": 120, "package": "app", "version": "1.0.0"}, "expected": 600},
+        {"op": "fetch", "args": {"timestamp": 150, "package": "core", "version": "1.0.0"}, "expected": null},
+        {"op": "total_size", "args": {"timestamp": 150, "package": "app", "version": "1.0.0"}, "expected": 100},
+        {"op": "cleanup", "args": {"timestamp": 160}, "expected": 1},
+        {"op": "publish", "args": {"timestamp": 170, "package": "core", "version": "1.0.0", "size_kb": 700}, "expected": true}
+      ]
+    },
+    {
+      "name": "expired artifacts are hidden everywhere",
+      "operations": [
+        {"op": "publish_with_ttl", "args": {"timestamp": 0, "package": "lib", "version": "1.0.0", "size_kb": 10, "ttl_ms": 100}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 0, "package": "lib", "version": "2.0.0", "size_kb": 20}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 0, "package": "app", "version": "1", "size_kb": 1}, "expected": true},
+        {"op": "fetch", "args": {"timestamp": 99, "package": "lib", "version": "1.0.0"}, "expected": 10},
+        {"op": "list_versions", "args": {"timestamp": 99, "package": "lib"}, "expected": ["2.0.0", "1.0.0"]},
+        {"op": "list_versions", "args": {"timestamp": 100, "package": "lib"}, "expected": ["2.0.0"]},
+        {"op": "add_dependency", "args": {"timestamp": 100, "package": "app", "version": "1", "dep_package": "lib", "dep_version": "1.0.0"}, "expected": false},
+        {"op": "resolve_closure", "args": {"timestamp": 100, "package": "lib", "version": "1.0.0"}, "expected": null}
+      ]
+    },
+    {
+      "name": "traversal does not pass through expired artifacts",
+      "operations": [
+        {"op": "publish", "args": {"timestamp": 0, "package": "app", "version": "1", "size_kb": 1}, "expected": true},
+        {"op": "publish_with_ttl", "args": {"timestamp": 0, "package": "mid", "version": "1", "size_kb": 10, "ttl_ms": 50}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 0, "package": "leaf", "version": "1", "size_kb": 100}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 1, "package": "app", "version": "1", "dep_package": "mid", "dep_version": "1"}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 1, "package": "mid", "version": "1", "dep_package": "leaf", "dep_version": "1"}, "expected": true},
+        {"op": "resolve_closure", "args": {"timestamp": 10, "package": "app", "version": "1"}, "expected": ["leaf@1", "mid@1"]},
+        {"op": "total_size", "args": {"timestamp": 10, "package": "app", "version": "1"}, "expected": 111},
+        {"op": "resolve_closure", "args": {"timestamp": 50, "package": "app", "version": "1"}, "expected": []},
+        {"op": "total_size", "args": {"timestamp": 50, "package": "app", "version": "1"}, "expected": 1}
+      ]
+    },
+    {
+      "name": "publishing over an expired slot starts fresh",
+      "operations": [
+        {"op": "publish_with_ttl", "args": {"timestamp": 0, "package": "lib", "version": "1", "size_kb": 10, "ttl_ms": 10}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 0, "package": "dep", "version": "1", "size_kb": 5}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 0, "package": "app", "version": "1", "size_kb": 1}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 1, "package": "lib", "version": "1", "dep_package": "dep", "dep_version": "1"}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 1, "package": "app", "version": "1", "dep_package": "lib", "dep_version": "1"}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 5, "package": "lib", "version": "1", "size_kb": 99}, "expected": false},
+        {"op": "publish", "args": {"timestamp": 20, "package": "lib", "version": "1", "size_kb": 30}, "expected": true},
+        {"op": "fetch", "args": {"timestamp": 21, "package": "lib", "version": "1"}, "expected": 30},
+        {"op": "resolve_closure", "args": {"timestamp": 21, "package": "lib", "version": "1"}, "expected": []},
+        {"op": "resolve_closure", "args": {"timestamp": 21, "package": "app", "version": "1"}, "expected": []},
+        {"op": "total_size", "args": {"timestamp": 21, "package": "app", "version": "1"}, "expected": 1}
+      ]
+    },
+    {
+      "name": "cleanup counts every expired artifact",
+      "operations": [
+        {"op": "publish_with_ttl", "args": {"timestamp": 0, "package": "a", "version": "1", "size_kb": 1, "ttl_ms": 10}, "expected": true},
+        {"op": "publish_with_ttl", "args": {"timestamp": 0, "package": "b", "version": "1", "size_kb": 1, "ttl_ms": 20}, "expected": true},
+        {"op": "publish_with_ttl", "args": {"timestamp": 0, "package": "c", "version": "1", "size_kb": 1, "ttl_ms": 30}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 0, "package": "d", "version": "1", "size_kb": 1}, "expected": true},
+        {"op": "cleanup", "args": {"timestamp": 9}, "expected": 0},
+        {"op": "cleanup", "args": {"timestamp": 20}, "expected": 2},
+        {"op": "cleanup", "args": {"timestamp": 21}, "expected": 0},
+        {"op": "cleanup", "args": {"timestamp": 1000}, "expected": 1},
+        {"op": "list_versions", "args": {"timestamp": 1000, "package": "d"}, "expected": ["1"]}
+      ]
+    }
+  ]
+}

@@ -86,21 +86,37 @@ Items now have different sizes. The `capacity` becomes the maximum total size of
 3. While the new item does not fit, free space: remove expired items first, then evict the least recently used items one by one.
 4. Insert the item as the most recently used.
 
+Return `false` if the put was rejected, `true` otherwise.
+
 ### Example
 
 `capacity = 10`, no TTLs:
 
 | Operation | Result | Items, least to most recently used (size) | Used |
 | --- | --- | --- | --- |
-| Put `a = 1`, size 4 | — | `a(4)` | 4 |
-| Put `b = 2`, size 3 | — | `a(4), b(3)` | 7 |
-| Put `c = 3`, size 2 | — | `a(4), b(3), c(2)` | 9 |
+| Put `a = 1`, size 4 | `true` | `a(4)` | 4 |
+| Put `b = 2`, size 3 | `true` | `a(4), b(3)` | 7 |
+| Put `c = 3`, size 2 | `true` | `a(4), b(3), c(2)` | 9 |
 | Get `a` | `1` | `b(3), c(2), a(4)` | 9 |
-| Put `d = 4`, size 5 | — (evicts `b`, then `c`) | `a(4), d(5)` | 9 |
-| Put `e = 5`, size 11 | rejected | `a(4), d(5)` | 9 |
-| Put `a = 6`, size 7 | — (old `a` removed, then evicts `d`) | `a(7)` | 7 |
+| Put `d = 4`, size 5 | `true` (evicts `b`, then `c`) | `a(4), d(5)` | 9 |
+| Put `e = 5`, size 11 | `false` | `a(4), d(5)` | 9 |
+| Put `a = 6`, size 7 | `true` (old `a` removed, then evicts `d`) | `a(7)` | 7 |
 
 ---
+
+## Test data
+
+Test cases for each level are in [`testdata/005-lru-cache/`](../testdata/005-lru-cache/). See [`testdata/README.md`](../testdata/README.md) for the file format.
+
+| Level | Operation | Arguments | Result |
+| --- | --- | --- | --- |
+| 1 | `get` | `key` | value, or `null` |
+| 1 | `put` | `key`, `value` | — |
+| 2 | `get` | `timestamp`, `key` | value, or `null` |
+| 2 | `put` | `timestamp`, `key`, `value`, optional `ttl_ms` | — |
+| 3 | `put` | `timestamp`, `key`, `value`, `size`, optional `ttl_ms` | `true` or `false` |
+
+Every case has a `setup` with the cache `capacity`.
 
 ## Going further (optional)
 

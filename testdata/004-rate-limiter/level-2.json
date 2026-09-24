@@ -1,0 +1,50 @@
+{
+  "challenge": "004-rate-limiter",
+  "level": 2,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "allow_request_sliding", "args": {"timestamp": 0, "client_id": "A", "limit": 2, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 500, "client_id": "A", "limit": 2, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 999, "client_id": "A", "limit": 2, "window_ms": 1000}, "expected": false},
+        {"op": "allow_request_sliding", "args": {"timestamp": 1000, "client_id": "A", "limit": 2, "window_ms": 1000}, "expected": false},
+        {"op": "allow_request_sliding", "args": {"timestamp": 1001, "client_id": "A", "limit": 2, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 1500, "client_id": "A", "limit": 2, "window_ms": 1000}, "expected": false}
+      ]
+    },
+    {
+      "name": "rejected requests are not logged",
+      "operations": [
+        {"op": "allow_request_sliding", "args": {"timestamp": 0, "client_id": "c", "limit": 1, "window_ms": 100}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 50, "client_id": "c", "limit": 1, "window_ms": 100}, "expected": false},
+        {"op": "allow_request_sliding", "args": {"timestamp": 100, "client_id": "c", "limit": 1, "window_ms": 100}, "expected": false},
+        {"op": "allow_request_sliding", "args": {"timestamp": 101, "client_id": "c", "limit": 1, "window_ms": 100}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 150, "client_id": "c", "limit": 1, "window_ms": 100}, "expected": false}
+      ]
+    },
+    {
+      "name": "sliding and fixed state are separate",
+      "operations": [
+        {"op": "allow_request", "args": {"timestamp": 0, "client_id": "c", "limit": 1, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 0, "client_id": "c", "limit": 1, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 10, "client_id": "c", "limit": 1, "window_ms": 1000}, "expected": false},
+        {"op": "allow_request_sliding", "args": {"timestamp": 10, "client_id": "c", "limit": 1, "window_ms": 1000}, "expected": false},
+        {"op": "allow_request", "args": {"timestamp": 1000, "client_id": "c", "limit": 1, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 1000, "client_id": "c", "limit": 1, "window_ms": 1000}, "expected": false},
+        {"op": "allow_request_sliding", "args": {"timestamp": 1001, "client_id": "c", "limit": 1, "window_ms": 1000}, "expected": true}
+      ]
+    },
+    {
+      "name": "boundary burst is blocked",
+      "operations": [
+        {"op": "allow_request_sliding", "args": {"timestamp": 900, "client_id": "c", "limit": 3, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 950, "client_id": "c", "limit": 3, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 999, "client_id": "c", "limit": 3, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 1000, "client_id": "c", "limit": 3, "window_ms": 1000}, "expected": false},
+        {"op": "allow_request_sliding", "args": {"timestamp": 1100, "client_id": "c", "limit": 3, "window_ms": 1000}, "expected": false},
+        {"op": "allow_request_sliding", "args": {"timestamp": 1901, "client_id": "c", "limit": 3, "window_ms": 1000}, "expected": true}
+      ]
+    }
+  ]
+}

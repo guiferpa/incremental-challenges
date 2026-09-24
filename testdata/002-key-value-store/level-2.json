@@ -1,0 +1,93 @@
+{
+  "challenge": "002-key-value-store",
+  "level": 2,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "set", "args": {"key": "a", "value": "10"}},
+        {"op": "begin", "args": {}},
+        {"op": "set", "args": {"key": "a", "value": "20"}},
+        {"op": "get", "args": {"key": "a"}, "expected": "20"},
+        {"op": "begin", "args": {}},
+        {"op": "delete", "args": {"key": "a"}, "expected": true},
+        {"op": "get", "args": {"key": "a"}, "expected": null},
+        {"op": "rollback", "args": {}},
+        {"op": "get", "args": {"key": "a"}, "expected": "20"},
+        {"op": "commit", "args": {}},
+        {"op": "get", "args": {"key": "a"}, "expected": "20"},
+        {"op": "rollback", "args": {}, "expected": {"error": "no_transaction"}},
+        {"op": "begin", "args": {}},
+        {"op": "set", "args": {"key": "b", "value": "20"}},
+        {"op": "count", "args": {"value": "20"}, "expected": 2},
+        {"op": "rollback", "args": {}},
+        {"op": "count", "args": {"value": "20"}, "expected": 1}
+      ]
+    },
+    {
+      "name": "nested commit is undone by outer rollback",
+      "operations": [
+        {"op": "set", "args": {"key": "a", "value": "1"}},
+        {"op": "begin", "args": {}},
+        {"op": "begin", "args": {}},
+        {"op": "set", "args": {"key": "a", "value": "2"}},
+        {"op": "commit", "args": {}},
+        {"op": "get", "args": {"key": "a"}, "expected": "2"},
+        {"op": "rollback", "args": {}},
+        {"op": "get", "args": {"key": "a"}, "expected": "1"}
+      ]
+    },
+    {
+      "name": "commit without a transaction",
+      "operations": [
+        {"op": "commit", "args": {}, "expected": {"error": "no_transaction"}},
+        {"op": "set", "args": {"key": "a", "value": "1"}},
+        {"op": "commit", "args": {}, "expected": {"error": "no_transaction"}},
+        {"op": "get", "args": {"key": "a"}, "expected": "1"}
+      ]
+    },
+    {
+      "name": "rollback brings a deleted key back",
+      "operations": [
+        {"op": "set", "args": {"key": "a", "value": "1"}},
+        {"op": "begin", "args": {}},
+        {"op": "delete", "args": {"key": "a"}, "expected": true},
+        {"op": "delete", "args": {"key": "a"}, "expected": false},
+        {"op": "count", "args": {"value": "1"}, "expected": 0},
+        {"op": "rollback", "args": {}},
+        {"op": "get", "args": {"key": "a"}, "expected": "1"},
+        {"op": "count", "args": {"value": "1"}, "expected": 1}
+      ]
+    },
+    {
+      "name": "committed delete is permanent",
+      "operations": [
+        {"op": "set", "args": {"key": "a", "value": "1"}},
+        {"op": "begin", "args": {}},
+        {"op": "delete", "args": {"key": "a"}, "expected": true},
+        {"op": "commit", "args": {}},
+        {"op": "get", "args": {"key": "a"}, "expected": null},
+        {"op": "rollback", "args": {}, "expected": {"error": "no_transaction"}}
+      ]
+    },
+    {
+      "name": "three levels deep",
+      "operations": [
+        {"op": "begin", "args": {}},
+        {"op": "set", "args": {"key": "a", "value": "1"}},
+        {"op": "begin", "args": {}},
+        {"op": "set", "args": {"key": "a", "value": "2"}},
+        {"op": "begin", "args": {}},
+        {"op": "set", "args": {"key": "a", "value": "3"}},
+        {"op": "get", "args": {"key": "a"}, "expected": "3"},
+        {"op": "rollback", "args": {}},
+        {"op": "get", "args": {"key": "a"}, "expected": "2"},
+        {"op": "commit", "args": {}},
+        {"op": "get", "args": {"key": "a"}, "expected": "2"},
+        {"op": "commit", "args": {}},
+        {"op": "get", "args": {"key": "a"}, "expected": "2"},
+        {"op": "rollback", "args": {}, "expected": {"error": "no_transaction"}}
+      ]
+    }
+  ]
+}

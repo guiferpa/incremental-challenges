@@ -1,0 +1,73 @@
+{
+  "challenge": "007-artifact-registry",
+  "level": 2,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "publish", "args": {"timestamp": 100, "package": "app", "version": "1.0.0", "size_kb": 100}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 100, "package": "core", "version": "1.0.0", "size_kb": 500}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 100, "package": "utils", "version": "1.0.0", "size_kb": 50}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 110, "package": "app", "version": "1.0.0", "dep_package": "core", "dep_version": "1.0.0"}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 110, "package": "app", "version": "1.0.0", "dep_package": "utils", "dep_version": "1.0.0"}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 110, "package": "core", "version": "1.0.0", "dep_package": "utils", "dep_version": "1.0.0"}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 120, "package": "utils", "version": "1.0.0", "dep_package": "app", "dep_version": "1.0.0"}, "expected": false},
+        {"op": "resolve_closure", "args": {"timestamp": 130, "package": "app", "version": "1.0.0"}, "expected": ["core@1.0.0", "utils@1.0.0"]},
+        {"op": "total_size", "args": {"timestamp": 130, "package": "app", "version": "1.0.0"}, "expected": 650}
+      ]
+    },
+    {
+      "name": "self dependency and missing artifacts",
+      "operations": [
+        {"op": "publish", "args": {"timestamp": 1, "package": "a", "version": "1", "size_kb": 1}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 2, "package": "a", "version": "1", "dep_package": "a", "dep_version": "1"}, "expected": false},
+        {"op": "add_dependency", "args": {"timestamp": 2, "package": "a", "version": "1", "dep_package": "b", "dep_version": "1"}, "expected": false},
+        {"op": "add_dependency", "args": {"timestamp": 2, "package": "b", "version": "1", "dep_package": "a", "dep_version": "1"}, "expected": false},
+        {"op": "resolve_closure", "args": {"timestamp": 3, "package": "b", "version": "1"}, "expected": null},
+        {"op": "total_size", "args": {"timestamp": 3, "package": "b", "version": "1"}, "expected": null},
+        {"op": "resolve_closure", "args": {"timestamp": 3, "package": "a", "version": "1"}, "expected": []},
+        {"op": "total_size", "args": {"timestamp": 3, "package": "a", "version": "1"}, "expected": 1}
+      ]
+    },
+    {
+      "name": "adding an existing edge",
+      "operations": [
+        {"op": "publish", "args": {"timestamp": 1, "package": "a", "version": "1", "size_kb": 1}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 1, "package": "b", "version": "1", "size_kb": 2}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 2, "package": "a", "version": "1", "dep_package": "b", "dep_version": "1"}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 3, "package": "a", "version": "1", "dep_package": "b", "dep_version": "1"}, "expected": true},
+        {"op": "total_size", "args": {"timestamp": 4, "package": "a", "version": "1"}, "expected": 3}
+      ]
+    },
+    {
+      "name": "longer cycle is rejected",
+      "operations": [
+        {"op": "publish", "args": {"timestamp": 1, "package": "a", "version": "1", "size_kb": 1}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 1, "package": "b", "version": "1", "size_kb": 2}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 1, "package": "c", "version": "1", "size_kb": 4}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 1, "package": "d", "version": "1", "size_kb": 8}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 2, "package": "a", "version": "1", "dep_package": "b", "dep_version": "1"}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 2, "package": "b", "version": "1", "dep_package": "c", "dep_version": "1"}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 2, "package": "c", "version": "1", "dep_package": "d", "dep_version": "1"}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 3, "package": "d", "version": "1", "dep_package": "a", "dep_version": "1"}, "expected": false},
+        {"op": "add_dependency", "args": {"timestamp": 3, "package": "d", "version": "1", "dep_package": "b", "dep_version": "1"}, "expected": false},
+        {"op": "add_dependency", "args": {"timestamp": 3, "package": "a", "version": "1", "dep_package": "d", "dep_version": "1"}, "expected": true},
+        {"op": "resolve_closure", "args": {"timestamp": 4, "package": "b", "version": "1"}, "expected": ["c@1", "d@1"]},
+        {"op": "total_size", "args": {"timestamp": 4, "package": "a", "version": "1"}, "expected": 15},
+        {"op": "total_size", "args": {"timestamp": 4, "package": "c", "version": "1"}, "expected": 12}
+      ]
+    },
+    {
+      "name": "versions are different nodes",
+      "operations": [
+        {"op": "publish", "args": {"timestamp": 1, "package": "lib", "version": "1.0.0", "size_kb": 10}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 1, "package": "lib", "version": "2.0.0", "size_kb": 20}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 1, "package": "app", "version": "1.0.0", "size_kb": 1}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 2, "package": "app", "version": "1.0.0", "dep_package": "lib", "dep_version": "2.0.0"}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 2, "package": "lib", "version": "2.0.0", "dep_package": "lib", "dep_version": "1.0.0"}, "expected": true},
+        {"op": "resolve_closure", "args": {"timestamp": 3, "package": "app", "version": "1.0.0"}, "expected": ["lib@1.0.0", "lib@2.0.0"]},
+        {"op": "total_size", "args": {"timestamp": 3, "package": "app", "version": "1.0.0"}, "expected": 31}
+      ]
+    }
+  ]
+}

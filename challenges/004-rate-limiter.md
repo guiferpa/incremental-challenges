@@ -102,6 +102,17 @@ Using the sliding window strategy:
 
 ---
 
+## Test data
+
+Test cases for each level are in [`testdata/004-rate-limiter/`](../testdata/004-rate-limiter/). See [`testdata/README.md`](../testdata/README.md) for the file format.
+
+| Level | Operation | Arguments | Result |
+| --- | --- | --- | --- |
+| 1 | `allow_request` | `timestamp`, `client_id`, `limit`, `window_ms` | `true` or `false` |
+| 2 | `allow_request_sliding` | `timestamp`, `client_id`, `limit`, `window_ms` | `true` or `false` |
+| 3 | `set_tier` | `client_id`, `limit`, `window_ms` | — |
+| 3 | `cleanup_expired` | `timestamp` | number of clients removed |
+
 ## Going further (optional)
 
 - Make the rate limiter safe to use from many concurrent requests at once.

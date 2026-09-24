@@ -1,0 +1,79 @@
+{
+  "challenge": "008-map-game-engine",
+  "level": 3,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "add_zone", "args": {"zone_id": "north_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "south_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "forest", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_1", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_2", "parent_id": "dungeon_1"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "cave", "parent_id": "forest"}, "expected": true},
+        {"op": "set_property", "args": {"zone_id": "north_realm", "key": "lighting", "value": "daylight"}, "expected": true},
+        {"op": "set_property", "args": {"zone_id": "north_realm", "key": "temperature", "value": "mild"}, "expected": true},
+        {"op": "set_property", "args": {"zone_id": "dungeon_1", "key": "lighting", "value": "dark"}, "expected": true},
+        {"op": "set_property", "args": {"zone_id": "cave", "key": "temperature", "value": "cold"}, "expected": true},
+        {"op": "set_property", "args": {"zone_id": "castle", "key": "lighting", "value": "dim"}, "expected": false},
+        {"op": "get_property", "args": {"zone_id": "dungeon_2", "key": "lighting"}, "expected": "dark"},
+        {"op": "get_property", "args": {"zone_id": "dungeon_2", "key": "temperature"}, "expected": "mild"},
+        {"op": "get_property", "args": {"zone_id": "cave", "key": "lighting"}, "expected": "daylight"},
+        {"op": "get_property", "args": {"zone_id": "cave", "key": "temperature"}, "expected": "cold"},
+        {"op": "get_property", "args": {"zone_id": "south_realm", "key": "lighting"}, "expected": null}
+      ]
+    },
+    {
+      "name": "overrides and replacement",
+      "operations": [
+        {"op": "add_zone", "args": {"zone_id": "north_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "south_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "forest", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_1", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_2", "parent_id": "dungeon_1"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "cave", "parent_id": "forest"}, "expected": true},
+        {"op": "set_property", "args": {"zone_id": "north_realm", "key": "lighting", "value": "daylight"}, "expected": true},
+        {"op": "set_property", "args": {"zone_id": "north_realm", "key": "temperature", "value": "mild"}, "expected": true},
+        {"op": "set_property", "args": {"zone_id": "dungeon_1", "key": "lighting", "value": "dark"}, "expected": true},
+        {"op": "set_property", "args": {"zone_id": "cave", "key": "temperature", "value": "cold"}, "expected": true},
+        {"op": "set_property", "args": {"zone_id": "north_realm", "key": "lighting", "value": "dusk"}, "expected": true},
+        {"op": "get_property", "args": {"zone_id": "forest", "key": "lighting"}, "expected": "dusk"},
+        {"op": "get_property", "args": {"zone_id": "dungeon_2", "key": "lighting"}, "expected": "dark"},
+        {"op": "set_property", "args": {"zone_id": "dungeon_2", "key": "lighting", "value": "torch"}, "expected": true},
+        {"op": "get_property", "args": {"zone_id": "dungeon_2", "key": "lighting"}, "expected": "torch"},
+        {"op": "get_property", "args": {"zone_id": "dungeon_1", "key": "lighting"}, "expected": "dark"}
+      ]
+    },
+    {
+      "name": "unknown zones and keys",
+      "operations": [
+        {"op": "add_zone", "args": {"zone_id": "north_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "south_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "forest", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_1", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_2", "parent_id": "dungeon_1"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "cave", "parent_id": "forest"}, "expected": true},
+        {"op": "set_property", "args": {"zone_id": "north_realm", "key": "lighting", "value": "daylight"}, "expected": true},
+        {"op": "set_property", "args": {"zone_id": "north_realm", "key": "temperature", "value": "mild"}, "expected": true},
+        {"op": "set_property", "args": {"zone_id": "dungeon_1", "key": "lighting", "value": "dark"}, "expected": true},
+        {"op": "set_property", "args": {"zone_id": "cave", "key": "temperature", "value": "cold"}, "expected": true},
+        {"op": "get_property", "args": {"zone_id": "castle", "key": "lighting"}, "expected": null},
+        {"op": "get_property", "args": {"zone_id": "cave", "key": "humidity"}, "expected": null}
+      ]
+    },
+    {
+      "name": "a property set later is inherited right away",
+      "operations": [
+        {"op": "add_zone", "args": {"zone_id": "north_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "south_realm", "parent_id": ""}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "forest", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_1", "parent_id": "north_realm"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "dungeon_2", "parent_id": "dungeon_1"}, "expected": true},
+        {"op": "add_zone", "args": {"zone_id": "cave", "parent_id": "forest"}, "expected": true},
+        {"op": "get_property", "args": {"zone_id": "cave", "key": "music"}, "expected": null},
+        {"op": "set_property", "args": {"zone_id": "north_realm", "key": "music", "value": "calm"}, "expected": true},
+        {"op": "get_property", "args": {"zone_id": "cave", "key": "music"}, "expected": "calm"}
+      ]
+    }
+  ]
+}

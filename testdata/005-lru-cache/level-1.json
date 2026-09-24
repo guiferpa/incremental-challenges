@@ -1,0 +1,58 @@
+{
+  "challenge": "005-lru-cache",
+  "level": 1,
+  "cases": [
+    {
+      "name": "spec example",
+      "setup": {"capacity": 2},
+      "operations": [
+        {"op": "put", "args": {"key": "a", "value": 1}},
+        {"op": "put", "args": {"key": "b", "value": 2}},
+        {"op": "get", "args": {"key": "a"}, "expected": 1},
+        {"op": "put", "args": {"key": "c", "value": 3}},
+        {"op": "get", "args": {"key": "b"}, "expected": null},
+        {"op": "put", "args": {"key": "a", "value": 10}},
+        {"op": "put", "args": {"key": "d", "value": 4}},
+        {"op": "get", "args": {"key": "c"}, "expected": null},
+        {"op": "get", "args": {"key": "a"}, "expected": 10},
+        {"op": "get", "args": {"key": "d"}, "expected": 4}
+      ]
+    },
+    {
+      "name": "capacity 1",
+      "setup": {"capacity": 1},
+      "operations": [
+        {"op": "put", "args": {"key": "a", "value": 1}},
+        {"op": "put", "args": {"key": "b", "value": 2}},
+        {"op": "get", "args": {"key": "a"}, "expected": null},
+        {"op": "get", "args": {"key": "b"}, "expected": 2}
+      ]
+    },
+    {
+      "name": "updating does not evict",
+      "setup": {"capacity": 2},
+      "operations": [
+        {"op": "put", "args": {"key": "a", "value": 1}},
+        {"op": "put", "args": {"key": "b", "value": 2}},
+        {"op": "put", "args": {"key": "a", "value": 3}},
+        {"op": "get", "args": {"key": "a"}, "expected": 3},
+        {"op": "get", "args": {"key": "b"}, "expected": 2}
+      ]
+    },
+    {
+      "name": "a failed get does not change the order",
+      "setup": {"capacity": 3},
+      "operations": [
+        {"op": "put", "args": {"key": "a", "value": 1}},
+        {"op": "put", "args": {"key": "b", "value": 2}},
+        {"op": "put", "args": {"key": "c", "value": 3}},
+        {"op": "get", "args": {"key": "x"}, "expected": null},
+        {"op": "put", "args": {"key": "d", "value": 4}},
+        {"op": "get", "args": {"key": "a"}, "expected": null},
+        {"op": "get", "args": {"key": "b"}, "expected": 2},
+        {"op": "get", "args": {"key": "c"}, "expected": 3},
+        {"op": "get", "args": {"key": "d"}, "expected": 4}
+      ]
+    }
+  ]
+}

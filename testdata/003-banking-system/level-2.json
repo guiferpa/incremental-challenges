@@ -1,0 +1,54 @@
+{
+  "challenge": "003-banking-system",
+  "level": 2,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "create_account", "args": {"timestamp": 1, "account_id": "A"}, "expected": true},
+        {"op": "create_account", "args": {"timestamp": 2, "account_id": "B"}, "expected": true},
+        {"op": "create_account", "args": {"timestamp": 3, "account_id": "A"}, "expected": false},
+        {"op": "deposit", "args": {"timestamp": 4, "account_id": "A", "amount": 1000}, "expected": 1000},
+        {"op": "deposit", "args": {"timestamp": 5, "account_id": "C", "amount": 10}, "expected": null},
+        {"op": "transfer", "args": {"timestamp": 6, "source_id": "A", "target_id": "B", "amount": 300}, "expected": 700},
+        {"op": "transfer", "args": {"timestamp": 7, "source_id": "B", "target_id": "A", "amount": 500}, "expected": null},
+        {"op": "transfer", "args": {"timestamp": 8, "source_id": "A", "target_id": "A", "amount": 10}, "expected": null},
+        {"op": "create_account", "args": {"timestamp": 9, "account_id": "C"}, "expected": true},
+        {"op": "deposit", "args": {"timestamp": 10, "account_id": "B", "amount": 200}, "expected": 500},
+        {"op": "transfer", "args": {"timestamp": 11, "source_id": "B", "target_id": "C", "amount": 400}, "expected": 100},
+        {"op": "top_spenders", "args": {"timestamp": 12, "n": 3}, "expected": ["B(400)", "A(300)", "C(0)"]},
+        {"op": "top_spenders", "args": {"timestamp": 13, "n": 2}, "expected": ["B(400)", "A(300)"]}
+      ]
+    },
+    {
+      "name": "ties are sorted by account_id",
+      "operations": [
+        {"op": "create_account", "args": {"timestamp": 1, "account_id": "c"}, "expected": true},
+        {"op": "create_account", "args": {"timestamp": 2, "account_id": "b"}, "expected": true},
+        {"op": "create_account", "args": {"timestamp": 3, "account_id": "a"}, "expected": true},
+        {"op": "deposit", "args": {"timestamp": 4, "account_id": "c", "amount": 100}, "expected": 100},
+        {"op": "deposit", "args": {"timestamp": 5, "account_id": "b", "amount": 100}, "expected": 100},
+        {"op": "transfer", "args": {"timestamp": 6, "source_id": "c", "target_id": "a", "amount": 10}, "expected": 90},
+        {"op": "transfer", "args": {"timestamp": 7, "source_id": "b", "target_id": "a", "amount": 10}, "expected": 90},
+        {"op": "top_spenders", "args": {"timestamp": 8, "n": 3}, "expected": ["b(10)", "c(10)", "a(0)"]},
+        {"op": "top_spenders", "args": {"timestamp": 9, "n": 10}, "expected": ["b(10)", "c(10)", "a(0)"]},
+        {"op": "top_spenders", "args": {"timestamp": 10, "n": 1}, "expected": ["b(10)"]}
+      ]
+    },
+    {
+      "name": "failed transfers do not count",
+      "operations": [
+        {"op": "create_account", "args": {"timestamp": 1, "account_id": "a"}, "expected": true},
+        {"op": "create_account", "args": {"timestamp": 2, "account_id": "b"}, "expected": true},
+        {"op": "transfer", "args": {"timestamp": 3, "source_id": "a", "target_id": "b", "amount": 5}, "expected": null},
+        {"op": "top_spenders", "args": {"timestamp": 4, "n": 2}, "expected": ["a(0)", "b(0)"]}
+      ]
+    },
+    {
+      "name": "no accounts",
+      "operations": [
+        {"op": "top_spenders", "args": {"timestamp": 1, "n": 3}, "expected": []}
+      ]
+    }
+  ]
+}

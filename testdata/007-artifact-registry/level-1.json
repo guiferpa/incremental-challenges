@@ -1,0 +1,45 @@
+{
+  "challenge": "007-artifact-registry",
+  "level": 1,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "publish", "args": {"timestamp": 100, "package": "core", "version": "1.0.0", "size_kb": 500}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 150, "package": "core", "version": "1.0.0", "size_kb": 900}, "expected": false},
+        {"op": "publish", "args": {"timestamp": 200, "package": "core", "version": "1.1.0", "size_kb": 640}, "expected": true},
+        {"op": "fetch", "args": {"timestamp": 250, "package": "core", "version": "1.1.0"}, "expected": 640},
+        {"op": "fetch", "args": {"timestamp": 250, "package": "core", "version": "2.0.0"}, "expected": null},
+        {"op": "list_versions", "args": {"timestamp": 300, "package": "core"}, "expected": ["1.1.0", "1.0.0"]}
+      ]
+    },
+    {
+      "name": "unknown package",
+      "operations": [
+        {"op": "list_versions", "args": {"timestamp": 1, "package": "ghost"}, "expected": []},
+        {"op": "fetch", "args": {"timestamp": 1, "package": "ghost", "version": "1.0.0"}, "expected": null}
+      ]
+    },
+    {
+      "name": "same timestamp: later publish first",
+      "operations": [
+        {"op": "publish", "args": {"timestamp": 10, "package": "lib", "version": "2.0.0", "size_kb": 1}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 10, "package": "lib", "version": "1.0.0", "size_kb": 1}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 10, "package": "lib", "version": "3.0.0", "size_kb": 1}, "expected": true},
+        {"op": "list_versions", "args": {"timestamp": 11, "package": "lib"}, "expected": ["3.0.0", "1.0.0", "2.0.0"]}
+      ]
+    },
+    {
+      "name": "packages are separate",
+      "operations": [
+        {"op": "publish", "args": {"timestamp": 1, "package": "a", "version": "1.0.0", "size_kb": 10}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 2, "package": "b", "version": "1.0.0", "size_kb": 20}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 3, "package": "a", "version": "2.0.0", "size_kb": 30}, "expected": true},
+        {"op": "list_versions", "args": {"timestamp": 4, "package": "a"}, "expected": ["2.0.0", "1.0.0"]},
+        {"op": "list_versions", "args": {"timestamp": 4, "package": "b"}, "expected": ["1.0.0"]},
+        {"op": "fetch", "args": {"timestamp": 4, "package": "b", "version": "1.0.0"}, "expected": 20},
+        {"op": "fetch", "args": {"timestamp": 4, "package": "a", "version": "1.0.0"}, "expected": 10}
+      ]
+    }
+  ]
+}

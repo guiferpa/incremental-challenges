@@ -1,0 +1,55 @@
+{
+  "challenge": "004-rate-limiter",
+  "level": 1,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "allow_request", "args": {"timestamp": 0, "client_id": "A", "limit": 2, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 500, "client_id": "A", "limit": 2, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 999, "client_id": "A", "limit": 2, "window_ms": 1000}, "expected": false},
+        {"op": "allow_request", "args": {"timestamp": 1000, "client_id": "A", "limit": 2, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 1200, "client_id": "B", "limit": 2, "window_ms": 1000}, "expected": true}
+      ]
+    },
+    {
+      "name": "windows are aligned to zero",
+      "operations": [
+        {"op": "allow_request", "args": {"timestamp": 1999, "client_id": "c", "limit": 1, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 2000, "client_id": "c", "limit": 1, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 2999, "client_id": "c", "limit": 1, "window_ms": 1000}, "expected": false},
+        {"op": "allow_request", "args": {"timestamp": 3000, "client_id": "c", "limit": 1, "window_ms": 1000}, "expected": true}
+      ]
+    },
+    {
+      "name": "rejected requests do not count",
+      "operations": [
+        {"op": "allow_request", "args": {"timestamp": 0, "client_id": "c", "limit": 1, "window_ms": 100}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 10, "client_id": "c", "limit": 1, "window_ms": 100}, "expected": false},
+        {"op": "allow_request", "args": {"timestamp": 20, "client_id": "c", "limit": 1, "window_ms": 100}, "expected": false},
+        {"op": "allow_request", "args": {"timestamp": 100, "client_id": "c", "limit": 1, "window_ms": 100}, "expected": true}
+      ]
+    },
+    {
+      "name": "clients are independent",
+      "operations": [
+        {"op": "allow_request", "args": {"timestamp": 0, "client_id": "x", "limit": 1, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 0, "client_id": "y", "limit": 1, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 1, "client_id": "x", "limit": 1, "window_ms": 1000}, "expected": false},
+        {"op": "allow_request", "args": {"timestamp": 1, "client_id": "y", "limit": 1, "window_ms": 1000}, "expected": false},
+        {"op": "allow_request", "args": {"timestamp": 2, "client_id": "z", "limit": 1, "window_ms": 1000}, "expected": true}
+      ]
+    },
+    {
+      "name": "a quiet window resets the counter",
+      "operations": [
+        {"op": "allow_request", "args": {"timestamp": 0, "client_id": "c", "limit": 3, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 1, "client_id": "c", "limit": 3, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 5000, "client_id": "c", "limit": 3, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 5001, "client_id": "c", "limit": 3, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 5002, "client_id": "c", "limit": 3, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 5003, "client_id": "c", "limit": 3, "window_ms": 1000}, "expected": false}
+      ]
+    }
+  ]
+}

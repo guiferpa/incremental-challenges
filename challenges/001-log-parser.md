@@ -33,7 +33,7 @@ Each log line follows this format:
 
    If the line is malformed, report that it could not be parsed instead of returning an entry. A line is malformed if it does not match the format, has an invalid timestamp, or has a level other than the three above.
 
-2. **Filter by level.** Given a list of entries and a level, return only the entries with that level, in their original order.
+2. **Filter by level.** Given a list of entries and a level, return only the entries with that level, in their original order. The result holds entries only: malformed lines never became entries, so they never appear in it, and no error is reported for them.
 
 ### Example
 
@@ -46,7 +46,7 @@ this line is garbage
 [2026-06-06T10:00:07Z] DEBUG: Unknown level
 ```
 
-Parsing each line:
+Parsing each line (task 1):
 
 | Line | Result |
 | --- | --- |
@@ -55,7 +55,11 @@ Parsing each line:
 | 3 | malformed |
 | 4 | malformed (unsupported level) |
 
-Filtering the valid entries by `ERROR` returns only the entry from line 2.
+Filtering by `ERROR` (task 2) returns a list with a single entry. Lines 3 and 4 are not in it, since they are not entries:
+
+```
+[ { timestamp: 1780740005000, level: ERROR, message: "Connection timeout" } ]
+```
 
 ---
 
@@ -71,6 +75,11 @@ Messages may contain structured attributes in either of two forms:
 1. **Extract a field.** Given an entry and a field key, return the value of that attribute. If the message does not contain the attribute, report that it was not found.
 
 2. **Group by field.** Given a list of entries and a field key, count how many entries have each distinct value of that field. Skip entries that do not contain the field.
+
+Rules:
+
+- The key must match exactly: looking up `id` does not match `session_id=abc`.
+- If the attribute appears more than once, in either form, use the first one in the message.
 
 ### Example
 
@@ -136,6 +145,20 @@ Output:
 | qwe | 0 | 0 |
 
 ---
+
+## Test data
+
+Test cases for each level are in [`testdata/001-log-parser/`](../testdata/001-log-parser/). See [`testdata/README.md`](../testdata/README.md) for the file format.
+
+| Level | Operation | Arguments | Result |
+| --- | --- | --- | --- |
+| 1 | `parse_line` | `raw_line` | `{timestamp, level, message}`, or `null` if malformed |
+| 1 | `filter_by_level` | `lines`, `level` | list of entries |
+| 2 | `extract_field` | `line`, `key` | value, or `null` if not found |
+| 2 | `group_by_field` | `lines`, `key` | object mapping each value to its count |
+| 3 | `analyze_sessions` | `lines` | list of `{session_id, duration_ms, error_count}` |
+
+Operations that take a list of entries receive raw log `lines` instead. Parse them first and skip the malformed ones. `extract_field` receives a single valid `line`.
 
 ## Going further (optional)
 

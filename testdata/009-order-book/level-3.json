@@ -1,0 +1,63 @@
+{
+  "challenge": "009-order-book",
+  "level": 3,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "place_limit_order", "args": {"order_id": "S1", "side": "SELL", "price": 101, "quantity": 5}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "S2", "side": "SELL", "price": 100, "quantity": 3}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "S3", "side": "SELL", "price": 101, "quantity": 4}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "B1", "side": "BUY", "price": 99, "quantity": 2}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "B2", "side": "BUY", "price": 101, "quantity": 10}, "expected": [{"buy_order_id": "B2", "sell_order_id": "S2", "price": 100, "quantity": 3}, {"buy_order_id": "B2", "sell_order_id": "S1", "price": 101, "quantity": 5}, {"buy_order_id": "B2", "sell_order_id": "S3", "price": 101, "quantity": 2}]},
+        {"op": "best_ask", "args": {}, "expected": {"price": 101, "quantity": 2}},
+        {"op": "best_bid", "args": {}, "expected": {"price": 99, "quantity": 2}},
+        {"op": "place_limit_order", "args": {"order_id": "S4", "side": "SELL", "price": 98, "quantity": 5}, "expected": [{"buy_order_id": "B1", "sell_order_id": "S4", "price": 99, "quantity": 2}]},
+        {"op": "best_ask", "args": {}, "expected": {"price": 98, "quantity": 3}},
+        {"op": "place_limit_order", "args": {"order_id": "S5", "side": "SELL", "price": 101, "quantity": 6}, "expected": []},
+        {"op": "market_depth", "args": {"side": "SELL", "n": 5}, "expected": [{"price": 98, "quantity": 3}, {"price": 101, "quantity": 8}]},
+        {"op": "cancel_order", "args": {"order_id": "S3"}, "expected": true},
+        {"op": "market_depth", "args": {"side": "SELL", "n": 5}, "expected": [{"price": 98, "quantity": 3}, {"price": 101, "quantity": 6}]},
+        {"op": "cancel_order", "args": {"order_id": "S3"}, "expected": false},
+        {"op": "cancel_order", "args": {"order_id": "B1"}, "expected": false},
+        {"op": "place_market_order", "args": {"order_id": "M1", "side": "BUY", "quantity": 5}, "expected": [{"buy_order_id": "M1", "sell_order_id": "S4", "price": 98, "quantity": 3}, {"buy_order_id": "M1", "sell_order_id": "S5", "price": 101, "quantity": 2}]},
+        {"op": "place_market_order", "args": {"order_id": "M2", "side": "BUY", "quantity": 10}, "expected": [{"buy_order_id": "M2", "sell_order_id": "S5", "price": 101, "quantity": 4}]},
+        {"op": "best_ask", "args": {}, "expected": null}
+      ]
+    },
+    {
+      "name": "market sell and empty book",
+      "operations": [
+        {"op": "place_market_order", "args": {"order_id": "m0", "side": "SELL", "quantity": 5}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "b1", "side": "BUY", "price": 10, "quantity": 2}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "b2", "side": "BUY", "price": 9, "quantity": 2}, "expected": []},
+        {"op": "place_market_order", "args": {"order_id": "m1", "side": "SELL", "quantity": 3}, "expected": [{"buy_order_id": "b1", "sell_order_id": "m1", "price": 10, "quantity": 2}, {"buy_order_id": "b2", "sell_order_id": "m1", "price": 9, "quantity": 1}]},
+        {"op": "best_bid", "args": {}, "expected": {"price": 9, "quantity": 1}},
+        {"op": "place_market_order", "args": {"order_id": "m1", "side": "SELL", "quantity": 1}, "expected": null},
+        {"op": "place_limit_order", "args": {"order_id": "m0", "side": "BUY", "price": 1, "quantity": 1}, "expected": null}
+      ]
+    },
+    {
+      "name": "cancel a partially filled order",
+      "operations": [
+        {"op": "place_limit_order", "args": {"order_id": "s", "side": "SELL", "price": 50, "quantity": 10}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "b", "side": "BUY", "price": 50, "quantity": 4}, "expected": [{"buy_order_id": "b", "sell_order_id": "s", "price": 50, "quantity": 4}]},
+        {"op": "cancel_order", "args": {"order_id": "s"}, "expected": true},
+        {"op": "best_ask", "args": {}, "expected": null},
+        {"op": "cancel_order", "args": {"order_id": "never"}, "expected": false}
+      ]
+    },
+    {
+      "name": "depth sorts best price first and respects n",
+      "operations": [
+        {"op": "place_limit_order", "args": {"order_id": "b1", "side": "BUY", "price": 10, "quantity": 1}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "b2", "side": "BUY", "price": 12, "quantity": 2}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "b3", "side": "BUY", "price": 11, "quantity": 3}, "expected": []},
+        {"op": "place_limit_order", "args": {"order_id": "b4", "side": "BUY", "price": 12, "quantity": 4}, "expected": []},
+        {"op": "market_depth", "args": {"side": "BUY", "n": 2}, "expected": [{"price": 12, "quantity": 6}, {"price": 11, "quantity": 3}]},
+        {"op": "market_depth", "args": {"side": "BUY", "n": 10}, "expected": [{"price": 12, "quantity": 6}, {"price": 11, "quantity": 3}, {"price": 10, "quantity": 1}]},
+        {"op": "market_depth", "args": {"side": "SELL", "n": 3}, "expected": []}
+      ]
+    }
+  ]
+}

@@ -19,6 +19,9 @@ The challenge has three levels. Each level builds on the previous one, so solve 
 ### Tasks
 
 1. **Place a limit order.** Given an `order_id`, a side (`BUY` or `SELL`), a `price` and a `quantity`, add the order to the book. Reject it if an order with that ID was ever placed before. In this level, assume orders never cross: every buy price is lower than every sell price.
+
+   Return the list of trades the order caused, which is always empty in this level (Level 2 fills it), or report that the order was rejected.
+
 2. **Best bid.** Return the highest buy price and the total quantity of all buy orders at that price. Report that the side is empty if there are no buy orders.
 3. **Best ask.** Return the lowest sell price and the total quantity of all sell orders at that price. Report that the side is empty if there are no sell orders.
 
@@ -26,11 +29,11 @@ The challenge has three levels. Each level builds on the previous one, so solve 
 
 | Operation | Result |
 | --- | --- |
-| Place `1`: BUY 10 at 100 | placed |
-| Place `2`: BUY 5 at 101 | placed |
-| Place `3`: BUY 7 at 101 | placed |
-| Place `4`: SELL 3 at 105 | placed |
-| Place `5`: SELL 4 at 103 | placed |
+| Place `1`: BUY 10 at 100 | no trades |
+| Place `2`: BUY 5 at 101 | no trades |
+| Place `3`: BUY 7 at 101 | no trades |
+| Place `4`: SELL 3 at 105 | no trades |
+| Place `5`: SELL 4 at 103 | no trades |
 | Place `1`: SELL 2 at 110 | rejected (`1` already exists) |
 | Best bid | `101` with quantity `12` |
 | Best ask | `103` with quantity `4` |
@@ -81,6 +84,8 @@ Starting with an empty book:
 2. **Place a market order.** Given an `order_id`, a side and a `quantity`, match it at any price, following the same rules as Level 2. A market order never rests: any quantity left unfilled is discarded. Return the trades.
 3. **Market depth.** Given a side and `n`, return up to `n` price levels on that side, best price first, each with its total quantity.
 
+Market orders share the same ID space as limit orders: reject a market order whose ID was ever used before.
+
 ### Example
 
 Continuing from Level 2. The book has no bids, and asks `S4` 3 at 98 and `S3` 2 at 101.
@@ -98,6 +103,20 @@ Continuing from Level 2. The book has no bids, and asks `S4` 3 at 98 and `S3` 2 
 | Best ask | the side is empty |
 
 ---
+
+## Test data
+
+Test cases for each level are in [`testdata/009-order-book/`](../testdata/009-order-book/). See [`testdata/README.md`](../testdata/README.md) for the file format.
+
+| Level | Operation | Arguments | Result |
+| --- | --- | --- | --- |
+| 1 | `place_limit_order` | `order_id`, `side`, `price`, `quantity` | list of trades, or `null` if rejected |
+| 1 | `best_bid`, `best_ask` | — | `{price, quantity}`, or `null` |
+| 3 | `cancel_order` | `order_id` | `true` or `false` |
+| 3 | `place_market_order` | `order_id`, `side`, `quantity` | list of trades, or `null` if rejected |
+| 3 | `market_depth` | `side`, `n` | list of `{price, quantity}` |
+
+A trade is `{buy_order_id, sell_order_id, price, quantity}`.
 
 ## Going further (optional)
 

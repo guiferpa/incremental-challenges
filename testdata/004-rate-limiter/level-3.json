@@ -1,0 +1,71 @@
+{
+  "challenge": "004-rate-limiter",
+  "level": 3,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "set_tier", "args": {"client_id": "A", "limit": 1, "window_ms": 1000}},
+        {"op": "allow_request_sliding", "args": {"timestamp": 0, "client_id": "A", "limit": 10, "window_ms": 60000}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 100, "client_id": "A", "limit": 10, "window_ms": 60000}, "expected": false},
+        {"op": "allow_request_sliding", "args": {"timestamp": 0, "client_id": "B", "limit": 10, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 1200, "client_id": "C", "limit": 10, "window_ms": 1000}, "expected": true},
+        {"op": "cleanup_expired", "args": {"timestamp": 1500}, "expected": 2},
+        {"op": "allow_request_sliding", "args": {"timestamp": 1600, "client_id": "A", "limit": 10, "window_ms": 60000}, "expected": true}
+      ]
+    },
+    {
+      "name": "tier applies to the fixed window too",
+      "operations": [
+        {"op": "set_tier", "args": {"client_id": "t", "limit": 3, "window_ms": 100}},
+        {"op": "allow_request", "args": {"timestamp": 0, "client_id": "t", "limit": 1, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 1, "client_id": "t", "limit": 1, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 2, "client_id": "t", "limit": 1, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request", "args": {"timestamp": 3, "client_id": "t", "limit": 1, "window_ms": 1000}, "expected": false},
+        {"op": "allow_request", "args": {"timestamp": 100, "client_id": "t", "limit": 1, "window_ms": 1000}, "expected": true}
+      ]
+    },
+    {
+      "name": "setting a tier again replaces it",
+      "operations": [
+        {"op": "set_tier", "args": {"client_id": "t", "limit": 1, "window_ms": 1000}},
+        {"op": "allow_request_sliding", "args": {"timestamp": 0, "client_id": "t", "limit": 2, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 1, "client_id": "t", "limit": 2, "window_ms": 1000}, "expected": false},
+        {"op": "set_tier", "args": {"client_id": "t", "limit": 5, "window_ms": 1000}},
+        {"op": "allow_request_sliding", "args": {"timestamp": 2, "client_id": "t", "limit": 2, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 3, "client_id": "t", "limit": 2, "window_ms": 1000}, "expected": true}
+      ]
+    },
+    {
+      "name": "cleanup keeps clients whose window is still open",
+      "operations": [
+        {"op": "allow_request", "args": {"timestamp": 0, "client_id": "f", "limit": 5, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 900, "client_id": "s", "limit": 5, "window_ms": 1000}, "expected": true},
+        {"op": "cleanup_expired", "args": {"timestamp": 999}, "expected": 0},
+        {"op": "cleanup_expired", "args": {"timestamp": 1000}, "expected": 1},
+        {"op": "cleanup_expired", "args": {"timestamp": 1900}, "expected": 0},
+        {"op": "cleanup_expired", "args": {"timestamp": 1901}, "expected": 1},
+        {"op": "cleanup_expired", "args": {"timestamp": 5000}, "expected": 0}
+      ]
+    },
+    {
+      "name": "a client is removed only when all its state is expired",
+      "operations": [
+        {"op": "allow_request", "args": {"timestamp": 0, "client_id": "c", "limit": 5, "window_ms": 1000}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 1500, "client_id": "c", "limit": 5, "window_ms": 1000}, "expected": true},
+        {"op": "cleanup_expired", "args": {"timestamp": 1600}, "expected": 0},
+        {"op": "cleanup_expired", "args": {"timestamp": 2501}, "expected": 1}
+      ]
+    },
+    {
+      "name": "cleanup uses the tier window",
+      "operations": [
+        {"op": "set_tier", "args": {"client_id": "t", "limit": 5, "window_ms": 10000}},
+        {"op": "allow_request_sliding", "args": {"timestamp": 0, "client_id": "t", "limit": 5, "window_ms": 100}, "expected": true},
+        {"op": "allow_request_sliding", "args": {"timestamp": 0, "client_id": "u", "limit": 5, "window_ms": 100}, "expected": true},
+        {"op": "cleanup_expired", "args": {"timestamp": 5000}, "expected": 1},
+        {"op": "cleanup_expired", "args": {"timestamp": 10001}, "expected": 1}
+      ]
+    }
+  ]
+}

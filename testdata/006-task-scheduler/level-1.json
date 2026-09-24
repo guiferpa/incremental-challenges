@@ -1,0 +1,49 @@
+{
+  "challenge": "006-task-scheduler",
+  "level": 1,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "add_task", "args": {"task_id": "a", "priority": 2}, "expected": true},
+        {"op": "add_task", "args": {"task_id": "b", "priority": 5}, "expected": true},
+        {"op": "add_task", "args": {"task_id": "c", "priority": 5}, "expected": true},
+        {"op": "add_task", "args": {"task_id": "d", "priority": 1}, "expected": true},
+        {"op": "add_task", "args": {"task_id": "a", "priority": 9}, "expected": false},
+        {"op": "next_task", "args": {}, "expected": "b"},
+        {"op": "next_task", "args": {}, "expected": "c"},
+        {"op": "next_task", "args": {}, "expected": "a"},
+        {"op": "next_task", "args": {}, "expected": "d"},
+        {"op": "next_task", "args": {}, "expected": null}
+      ]
+    },
+    {
+      "name": "empty queue",
+      "operations": [
+        {"op": "next_task", "args": {}, "expected": null}
+      ]
+    },
+    {
+      "name": "IDs cannot be reused after being taken",
+      "operations": [
+        {"op": "add_task", "args": {"task_id": "a", "priority": 1}, "expected": true},
+        {"op": "next_task", "args": {}, "expected": "a"},
+        {"op": "add_task", "args": {"task_id": "a", "priority": 1}, "expected": false},
+        {"op": "next_task", "args": {}, "expected": null}
+      ]
+    },
+    {
+      "name": "negative priorities and interleaving",
+      "operations": [
+        {"op": "add_task", "args": {"task_id": "low", "priority": -5}, "expected": true},
+        {"op": "add_task", "args": {"task_id": "zero", "priority": 0}, "expected": true},
+        {"op": "next_task", "args": {}, "expected": "zero"},
+        {"op": "add_task", "args": {"task_id": "high", "priority": 10}, "expected": true},
+        {"op": "add_task", "args": {"task_id": "zero2", "priority": 0}, "expected": true},
+        {"op": "next_task", "args": {}, "expected": "high"},
+        {"op": "next_task", "args": {}, "expected": "zero2"},
+        {"op": "next_task", "args": {}, "expected": "low"}
+      ]
+    }
+  ]
+}

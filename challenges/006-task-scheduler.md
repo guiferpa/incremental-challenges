@@ -101,6 +101,18 @@ Result: total time `6`. Start times: `a = 2`, `b = 0`, `c = 2`, `d = 5`, `e = 0`
 
 ---
 
+## Test data
+
+Test cases for each level are in [`testdata/006-task-scheduler/`](../testdata/006-task-scheduler/). See [`testdata/README.md`](../testdata/README.md) for the file format.
+
+| Level | Operation | Arguments | Result |
+| --- | --- | --- | --- |
+| 1 | `add_task` | `task_id`, `priority` | `true` or `false` |
+| 1 | `next_task` | — | task ID, or `null` |
+| 2 | `add_task` | `task_id`, `priority`, optional `depends_on` | `true` or `false` |
+| 2 | `complete_task` | `task_id` | `true` or `false` |
+| 3 | `simulate` | `workers`, `tasks` (each with `task_id`, `priority`, `duration`, `depends_on`) | `{total_time, start_times}` |
+
 ## Going further (optional)
 
 - Allow tasks to be added in any order and detect dependency cycles.

@@ -1,0 +1,68 @@
+{
+  "challenge": "007-artifact-registry",
+  "level": 4,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "publish_with_ttl", "args": {"timestamp": 100, "package": "core", "version": "1.0.0", "size_kb": 500, "ttl_ms": 100}, "expected": true},
+        {"op": "snapshot", "args": {"timestamp": 150}, "expected": "snapshot1"},
+        {"op": "publish", "args": {"timestamp": 160, "package": "app", "version": "1.0.0", "size_kb": 100}, "expected": true},
+        {"op": "fetch", "args": {"timestamp": 210, "package": "core", "version": "1.0.0"}, "expected": null},
+        {"op": "restore", "args": {"timestamp": 300, "snapshot_id": "snapshot1"}, "expected": true},
+        {"op": "fetch", "args": {"timestamp": 305, "package": "app", "version": "1.0.0"}, "expected": null},
+        {"op": "fetch", "args": {"timestamp": 340, "package": "core", "version": "1.0.0"}, "expected": 500},
+        {"op": "fetch", "args": {"timestamp": 360, "package": "core", "version": "1.0.0"}, "expected": null},
+        {"op": "restore", "args": {"timestamp": 400, "snapshot_id": "snapshot9"}, "expected": false}
+      ]
+    },
+    {
+      "name": "snapshots keep dependencies and publish order",
+      "operations": [
+        {"op": "publish", "args": {"timestamp": 1, "package": "lib", "version": "1", "size_kb": 10}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 2, "package": "lib", "version": "2", "size_kb": 20}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 3, "package": "app", "version": "1", "size_kb": 1}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 4, "package": "app", "version": "1", "dep_package": "lib", "dep_version": "2"}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 4, "package": "lib", "version": "2", "dep_package": "lib", "dep_version": "1"}, "expected": true},
+        {"op": "snapshot", "args": {"timestamp": 5}, "expected": "snapshot1"},
+        {"op": "publish", "args": {"timestamp": 6, "package": "lib", "version": "3", "size_kb": 30}, "expected": true},
+        {"op": "add_dependency", "args": {"timestamp": 7, "package": "app", "version": "1", "dep_package": "lib", "dep_version": "3"}, "expected": true},
+        {"op": "total_size", "args": {"timestamp": 8, "package": "app", "version": "1"}, "expected": 61},
+        {"op": "restore", "args": {"timestamp": 9, "snapshot_id": "snapshot1"}, "expected": true},
+        {"op": "total_size", "args": {"timestamp": 10, "package": "app", "version": "1"}, "expected": 31},
+        {"op": "list_versions", "args": {"timestamp": 10, "package": "lib"}, "expected": ["2", "1"]},
+        {"op": "resolve_closure", "args": {"timestamp": 10, "package": "app", "version": "1"}, "expected": ["lib@1", "lib@2"]}
+      ]
+    },
+    {
+      "name": "a snapshot can be restored many times",
+      "operations": [
+        {"op": "publish", "args": {"timestamp": 0, "package": "a", "version": "1", "size_kb": 1}, "expected": true},
+        {"op": "snapshot", "args": {"timestamp": 1}, "expected": "snapshot1"},
+        {"op": "publish", "args": {"timestamp": 2, "package": "b", "version": "1", "size_kb": 1}, "expected": true},
+        {"op": "snapshot", "args": {"timestamp": 3}, "expected": "snapshot2"},
+        {"op": "restore", "args": {"timestamp": 4, "snapshot_id": "snapshot1"}, "expected": true},
+        {"op": "fetch", "args": {"timestamp": 5, "package": "b", "version": "1"}, "expected": null},
+        {"op": "restore", "args": {"timestamp": 6, "snapshot_id": "snapshot2"}, "expected": true},
+        {"op": "fetch", "args": {"timestamp": 7, "package": "b", "version": "1"}, "expected": 1},
+        {"op": "restore", "args": {"timestamp": 8, "snapshot_id": "snapshot1"}, "expected": true},
+        {"op": "fetch", "args": {"timestamp": 9, "package": "b", "version": "1"}, "expected": null},
+        {"op": "snapshot", "args": {"timestamp": 10}, "expected": "snapshot3"}
+      ]
+    },
+    {
+      "name": "expired artifacts are not captured",
+      "operations": [
+        {"op": "publish_with_ttl", "args": {"timestamp": 0, "package": "gone", "version": "1", "size_kb": 1, "ttl_ms": 10}, "expected": true},
+        {"op": "publish_with_ttl", "args": {"timestamp": 0, "package": "left", "version": "1", "size_kb": 2, "ttl_ms": 100}, "expected": true},
+        {"op": "publish", "args": {"timestamp": 0, "package": "forever", "version": "1", "size_kb": 3}, "expected": true},
+        {"op": "snapshot", "args": {"timestamp": 10}, "expected": "snapshot1"},
+        {"op": "restore", "args": {"timestamp": 1000, "snapshot_id": "snapshot1"}, "expected": true},
+        {"op": "fetch", "args": {"timestamp": 1000, "package": "gone", "version": "1"}, "expected": null},
+        {"op": "fetch", "args": {"timestamp": 1089, "package": "left", "version": "1"}, "expected": 2},
+        {"op": "fetch", "args": {"timestamp": 1090, "package": "left", "version": "1"}, "expected": null},
+        {"op": "fetch", "args": {"timestamp": 99999, "package": "forever", "version": "1"}, "expected": 3}
+      ]
+    }
+  ]
+}

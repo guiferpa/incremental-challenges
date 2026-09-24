@@ -1,0 +1,47 @@
+{
+  "challenge": "001-log-parser",
+  "level": 2,
+  "cases": [
+    {
+      "name": "spec example",
+      "operations": [
+        {"op": "extract_field", "args": {"line": "[2026-06-06T10:00:01Z] ERROR: Request failed [status_code: 503] [path: /api/orders]", "key": "path"}, "expected": "/api/orders"},
+        {"op": "extract_field", "args": {"line": "[2026-06-06T10:00:03Z] WARN: Slow response [user: John Doe]", "key": "user"}, "expected": "John Doe"},
+        {"op": "extract_field", "args": {"line": "[2026-06-06T10:00:03Z] WARN: Slow response [user: John Doe]", "key": "status_code"}, "expected": null},
+        {"op": "group_by_field", "args": {"lines": ["[2026-06-06T10:00:00Z] ERROR: Request failed status_code=500 path=/api/users", "[2026-06-06T10:00:01Z] ERROR: Request failed [status_code: 503] [path: /api/orders]", "[2026-06-06T10:00:02Z] ERROR: Request failed status_code=500 path=/api/orders", "[2026-06-06T10:00:03Z] WARN: Slow response [user: John Doe]"], "key": "status_code"}, "expected": {"500": 2, "503": 1}}
+      ]
+    },
+    {
+      "name": "both forms",
+      "operations": [
+        {"op": "extract_field", "args": {"line": "[2026-06-06T10:00:00Z] ERROR: Request failed status_code=500 path=/api/users", "key": "status_code"}, "expected": "500"},
+        {"op": "extract_field", "args": {"line": "[2026-06-06T10:00:00Z] ERROR: Request failed status_code=500 path=/api/users", "key": "path"}, "expected": "/api/users"},
+        {"op": "extract_field", "args": {"line": "[2026-06-06T10:00:01Z] ERROR: Request failed [status_code: 503] [path: /api/orders]", "key": "status_code"}, "expected": "503"},
+        {"op": "group_by_field", "args": {"lines": ["[2026-06-06T10:00:00Z] ERROR: Request failed status_code=500 path=/api/users", "[2026-06-06T10:00:01Z] ERROR: Request failed [status_code: 503] [path: /api/orders]", "[2026-06-06T10:00:02Z] ERROR: Request failed status_code=500 path=/api/orders", "[2026-06-06T10:00:03Z] WARN: Slow response [user: John Doe]"], "key": "path"}, "expected": {"/api/users": 1, "/api/orders": 2}},
+        {"op": "group_by_field", "args": {"lines": ["[2026-06-06T10:00:00Z] ERROR: Request failed status_code=500 path=/api/users", "[2026-06-06T10:00:01Z] ERROR: Request failed [status_code: 503] [path: /api/orders]", "[2026-06-06T10:00:02Z] ERROR: Request failed status_code=500 path=/api/orders", "[2026-06-06T10:00:03Z] WARN: Slow response [user: John Doe]"], "key": "user"}, "expected": {"John Doe": 1}}
+      ]
+    },
+    {
+      "name": "key must match exactly",
+      "operations": [
+        {"op": "extract_field", "args": {"line": "[2026-06-06T10:00:00Z] INFO: Login session_id=abc user_id=42", "key": "id"}, "expected": null},
+        {"op": "extract_field", "args": {"line": "[2026-06-06T10:00:00Z] INFO: Login session_id=abc user_id=42", "key": "user_id"}, "expected": "42"},
+        {"op": "extract_field", "args": {"line": "[2026-06-06T10:00:00Z] INFO: Login [session_id: abc]", "key": "id"}, "expected": null}
+      ]
+    },
+    {
+      "name": "first occurrence wins",
+      "operations": [
+        {"op": "extract_field", "args": {"line": "[2026-06-06T10:00:00Z] WARN: Retrying retry=1 retry=2", "key": "retry"}, "expected": "1"},
+        {"op": "extract_field", "args": {"line": "[2026-06-06T10:00:00Z] WARN: Retrying [attempt: 3] attempt=4", "key": "attempt"}, "expected": "3"}
+      ]
+    },
+    {
+      "name": "group skips malformed lines and missing fields",
+      "operations": [
+        {"op": "group_by_field", "args": {"lines": ["[2026-06-06T10:00:00Z] INFO: Deploy region=eu", "[2026-06-06T10:00:01Z] INFO: Deploy [region: us]", "not a log line region=us", "[2026-06-06T10:00:02Z] INFO: Deploy without region", "[2026-06-06T10:00:03Z] ERROR: Deploy failed region=eu"], "key": "region"}, "expected": {"eu": 2, "us": 1}},
+        {"op": "group_by_field", "args": {"lines": ["[2026-06-06T10:00:00Z] INFO: Nothing here"], "key": "region"}, "expected": {}}
+      ]
+    }
+  ]
+}

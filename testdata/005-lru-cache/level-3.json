@@ -1,0 +1,70 @@
+{
+  "challenge": "005-lru-cache",
+  "level": 3,
+  "cases": [
+    {
+      "name": "spec example",
+      "setup": {"capacity": 10},
+      "operations": [
+        {"op": "put", "args": {"timestamp": 0, "key": "a", "value": 1, "size": 4}, "expected": true},
+        {"op": "put", "args": {"timestamp": 0, "key": "b", "value": 2, "size": 3}, "expected": true},
+        {"op": "put", "args": {"timestamp": 0, "key": "c", "value": 3, "size": 2}, "expected": true},
+        {"op": "get", "args": {"timestamp": 0, "key": "a"}, "expected": 1},
+        {"op": "put", "args": {"timestamp": 0, "key": "d", "value": 4, "size": 5}, "expected": true},
+        {"op": "get", "args": {"timestamp": 0, "key": "b"}, "expected": null},
+        {"op": "get", "args": {"timestamp": 0, "key": "c"}, "expected": null},
+        {"op": "put", "args": {"timestamp": 0, "key": "e", "value": 5, "size": 11}, "expected": false},
+        {"op": "put", "args": {"timestamp": 0, "key": "a", "value": 6, "size": 7}, "expected": true},
+        {"op": "get", "args": {"timestamp": 0, "key": "d"}, "expected": null},
+        {"op": "get", "args": {"timestamp": 0, "key": "a"}, "expected": 6}
+      ]
+    },
+    {
+      "name": "a rejected put keeps the old value",
+      "setup": {"capacity": 5},
+      "operations": [
+        {"op": "put", "args": {"timestamp": 0, "key": "a", "value": 1, "size": 3}, "expected": true},
+        {"op": "put", "args": {"timestamp": 1, "key": "a", "value": 2, "size": 6}, "expected": false},
+        {"op": "get", "args": {"timestamp": 2, "key": "a"}, "expected": 1}
+      ]
+    },
+    {
+      "name": "an item can fill the whole cache",
+      "setup": {"capacity": 5},
+      "operations": [
+        {"op": "put", "args": {"timestamp": 0, "key": "a", "value": 1, "size": 2}, "expected": true},
+        {"op": "put", "args": {"timestamp": 0, "key": "b", "value": 2, "size": 2}, "expected": true},
+        {"op": "put", "args": {"timestamp": 0, "key": "big", "value": 3, "size": 5}, "expected": true},
+        {"op": "get", "args": {"timestamp": 0, "key": "a"}, "expected": null},
+        {"op": "get", "args": {"timestamp": 0, "key": "b"}, "expected": null},
+        {"op": "get", "args": {"timestamp": 0, "key": "big"}, "expected": 3}
+      ]
+    },
+    {
+      "name": "expired items are removed before LRU items",
+      "setup": {"capacity": 5},
+      "operations": [
+        {"op": "put", "args": {"timestamp": 0, "key": "old", "value": 1, "size": 2}, "expected": true},
+        {"op": "put", "args": {"timestamp": 0, "key": "tmp", "value": 2, "size": 2, "ttl_ms": 10}, "expected": true},
+        {"op": "put", "args": {"timestamp": 20, "key": "new", "value": 3, "size": 2}, "expected": true},
+        {"op": "get", "args": {"timestamp": 21, "key": "old"}, "expected": 1},
+        {"op": "get", "args": {"timestamp": 21, "key": "tmp"}, "expected": null},
+        {"op": "get", "args": {"timestamp": 21, "key": "new"}, "expected": 3}
+      ]
+    },
+    {
+      "name": "evicts only as much as needed",
+      "setup": {"capacity": 4},
+      "operations": [
+        {"op": "put", "args": {"timestamp": 0, "key": "a", "value": 1, "size": 1}, "expected": true},
+        {"op": "put", "args": {"timestamp": 0, "key": "b", "value": 2, "size": 1}, "expected": true},
+        {"op": "put", "args": {"timestamp": 0, "key": "c", "value": 3, "size": 1}, "expected": true},
+        {"op": "put", "args": {"timestamp": 0, "key": "d", "value": 4, "size": 2}, "expected": true},
+        {"op": "get", "args": {"timestamp": 0, "key": "a"}, "expected": null},
+        {"op": "get", "args": {"timestamp": 0, "key": "b"}, "expected": 2},
+        {"op": "get", "args": {"timestamp": 0, "key": "c"}, "expected": 3},
+        {"op": "get", "args": {"timestamp": 0, "key": "d"}, "expected": 4}
+      ]
+    }
+  ]
+}
